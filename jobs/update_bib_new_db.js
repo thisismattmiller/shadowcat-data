@@ -29,134 +29,134 @@ var records = []
 var sourceFiles = []
 
 
-// var updateBibRecord = function(){
+var updateBibRecord = function(){
 
-// 	if (!records[0]) {
+	if (!records[0]) {
 
-// 		//drop the old files
-// 		for (var x in sourceFiles){
+		//drop the old files
+		for (var x in sourceFiles){
 
 			
-// 			log.info('[update_bib_db] Deleting: ', sourceFiles[x])
-// 			fs.unlinkSync(sourceFiles[x]);
+			log.info('[update_bib_db] Deleting: ', sourceFiles[x])
+			fs.unlinkSync(sourceFiles[x]);
 
-// 		}
+		}
 
 
-// 		util.exit()
-// 		return
-// 	}
+		util.exit()
+		return
+	}
 
-// 	var bib = records.shift()
+	var bib = records.shift()
 	
 
-// 	db.updateBibRecord(bib, function(err,result){
+	db.updateBibRecord(bib, function(err,result){
 
 
-// 		bib['_id'] = bib.id
+		bib['_id'] = bib.id
 
 
-// 		if (err){
+		if (err){
 
-// 			log.info('[update_bib_db] Error updating record', bib)
-// 			log.info(err)
-// 			console.log(err)
+			log.info('[update_bib_db] Error updating record', bib)
+			log.info(err)
+			console.log(err)
 
-// 		}else{
+		}else{
 
-// 			console.log(result.result)
-// 			if (result.result.n == 0){
+			console.log(result.result)
+			if (result.result.n == 0){
 
-// 				//the record was not found, so we need to insert it
+				//the record was not found, so we need to insert it
 				
-// 				db.insertBibRecord(bib, function(err,result){
+				db.insertBibRecord(bib, function(err,result){
 
-// 					if (err){
-// 						log.info('[update_bib_db] Error inserting record', bib)
-// 						log.info(err)
+					if (err){
+						log.info('[update_bib_db] Error inserting record', bib)
+						log.info(err)
 
-// 						console.log(err)
-// 					}else{
-// 						console.log("inserted ",bib.id,result.result)
-// 					}
+						console.log(err)
+					}else{
+						console.log("inserted ",bib.id,result.result)
+					}
 
-// 					updateBibRecord()
-// 				})
-
-
-// 			}else{
-
-// 				console.log("update",bib.id,result.result)
-// 				updateBibRecord()
-
-// 			}
-
-// 		}
-
-// 	})
+					updateBibRecord()
+				})
 
 
-// }
+			}else{
+
+				console.log("update",bib.id,result.result)
+				updateBibRecord()
+
+			}
+
+		}
+
+	})
 
 
-
-
-// log.info("[update_item_db] Looking for item records in: ", __dirname + '/../data/bib_*.json')
-
-// glob(__dirname + '/../data/bib_*.json', {}, function (er, files) {
-
-// 	sourceFiles = files
-
-// 	log.info("[update_bib_db] Going to update records in ", files.length, " files.")
-
-
-// 	console.log("Going to update records in ", files.length, " files.")
-
-// 	//wait for any pending writes to complete from the download script
-// 	setTimeout(function(){
-
-
-// 		for (var file in files){
-
-// 			file = files[file]
-
-// 			var content = fs.readFileSync(file);
-
-// 			content = JSON.parse(content)
-
-// 			if (content.entries){
-
-// 				log.info("[update_bib_db] Parsing: ", file)
-
-
-// 				for (var x in content.entries){
-
-// 					records.push(content.entries[x])
-// 				}
-
-
-// 			}else{
-// 				log.info("[update_bib_db] Error parsing: ", file)
-// 			}
-
-
-
-// 		}
-
-
-// 		log.info("[update_bib_db] Will update/insert ", records.length, " records.")
-
-// 		//start the first one
-// 		updateBibRecord()
-
-
-// 	},5000)
+}
 
 
 
 
+log.info("[update_item_db] Looking for item records in: ", __dirname + '/../data/bib_*.json')
 
-// })
+glob(__dirname + '/../data/bib_*.json', {}, function (er, files) {
+
+	sourceFiles = files
+
+	log.info("[update_bib_db] Going to update records in ", files.length, " files.")
+
+
+	console.log("Going to update records in ", files.length, " files.")
+
+	//wait for any pending writes to complete from the download script
+	setTimeout(function(){
+
+
+		for (var file in files){
+
+			file = files[file]
+
+			var content = fs.readFileSync(file);
+
+			content = JSON.parse(content)
+
+			if (content.entries){
+
+				log.info("[update_bib_db] Parsing: ", file)
+
+
+				for (var x in content.entries){
+
+					records.push(content.entries[x])
+				}
+
+
+			}else{
+				log.info("[update_bib_db] Error parsing: ", file)
+			}
+
+
+
+		}
+
+
+		log.info("[update_bib_db] Will update/insert ", records.length, " records.")
+
+		//start the first one
+		updateBibRecord()
+
+
+	},5000)
+
+
+
+
+
+})
 
 
 
