@@ -1,0 +1,23 @@
+{
+  "APIProd": {
+  	"key": "",
+  	"secret" : "",
+  	"base" : "https://lib.example.edu/iii/sierra‑api/v1/",
+    "type" : "prod"
+  },
+  "APITest": {
+    "key": "",
+    "secret" : "",
+    "base" : "https://lib.example.edu/iii/sierra‑api/v1/",
+    "type" : "test"
+  },
+  "BibUpdate": {
+    "runWindow" : [18,19,20,21,22,23,0,1,2,3,4,5,6,7]
+  },
+  "ItemUpdate": {
+    "runWindow" : [0,1,2,3,4,5,6,7]
+  },
+  "DB": {
+    "mongoConnectURL" : "mongodb://123.456.789.000:27017/db"
+  }
+}
