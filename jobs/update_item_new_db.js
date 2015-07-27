@@ -21,8 +21,8 @@ log.info('[update_item_db] Starting up DB script')
 //see if this process is running already
 util.checkIfRunning(function(isRunning){
 	if (isRunning){
-      	console.log("Already running ",stdout.split(__filename).length)
-		log.info('[update_item_db] Already running instance count: ', stdout.split(__filename).length )
+      	console.log("Already running ")
+		log.info('[update_item_db] Already running')
       	process.exit()
 	}
 })

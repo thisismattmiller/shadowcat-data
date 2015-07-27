@@ -21,8 +21,8 @@ log.info('[update_item] Starting up script')
 //see if this process is running already
 util.checkIfRunning(function(isRunning){
 	if (isRunning){
-      	console.log("Already running ",stdout.split(__filename).length)
-		log.info('[update_item] Already running instance count: ', stdout.split(__filename).length )
+      	console.log("Already running ")
+		log.info('[update_item] Already running instance count')
       	process.exit()
 	}
 })

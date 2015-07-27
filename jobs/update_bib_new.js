@@ -26,8 +26,8 @@ log.info('[update_bib] Starting up script')
 //doing this from cron on the server so 1 = the PS, 2 = the shell script running the cron job, 3 = the node job
 util.checkIfRunning(function(isRunning){
 	if (isRunning){
-      	console.log("Already running ",stdout.split(__filename).length)
-		log.info('[update_bib] Already running instance count: ', stdout.split(__filename).length )
+      	console.log("Already running.")
+		log.info('[update_bib] Already running.' )
       	process.exit()
 	}
 })

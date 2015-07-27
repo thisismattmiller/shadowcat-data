@@ -15,12 +15,12 @@ var opts = {
 
 var log = require('simple-node-logger').createRollingFileLogger( opts );
 
-log.info('[update_bib_db] Starting up DB script')
+log.info('[update_bib_db] Starting up Item DB script')
 
 util.checkIfRunning(function(isRunning){
 	if (isRunning){
-      	console.log("Already running ",stdout.split(__filename).length)
-		log.info('[update_bib_db] Already running, instance count: ', stdout.split(__filename).length )
+      	console.log("Already running ")
+		log.info('[update_bib_db] Already running')
       	process.exit()
 	}
 })
