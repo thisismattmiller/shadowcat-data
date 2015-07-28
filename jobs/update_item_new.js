@@ -63,6 +63,7 @@ if (util.checkItemUpdateTime()){
 					startingMoment.subtract(3, 'months')
 
 					metadata.itemLastUpdatedDate = startingMoment.format("YYYY-MM-DD")
+					metadata.itemLastUpdatedOffset = 0
 
 					log.info('[update_item] Setting metadata.itemLastUpdatedDate to: ', metadata.itemLastUpdatedDate )
 
