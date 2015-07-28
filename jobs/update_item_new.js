@@ -49,6 +49,9 @@ if (util.checkItemUpdateTime()){
 			var date = new Date()
 			var currentHour = date.getHours()
 
+			console.log("currentHour",currentHour)
+			console.log("util.checkItemUpdateTime()[0]",util.checkItemUpdateTime()[0])
+
 			if (currentHour == util.checkItemUpdateTime()[0]){
 
 				log.info('[update_item] It is the first hour of the run window')
