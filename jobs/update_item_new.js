@@ -49,8 +49,6 @@ if (util.checkItemUpdateTime()){
 			var date = new Date()
 			var currentHour = date.getHours()
 
-			console.log("currentHour",currentHour)
-			console.log("util.checkItemUpdateTime()[0]",util.checkItemUpdateTime(true)[0])
 
 			if (currentHour == util.checkItemUpdateTime(true)[0]){
 

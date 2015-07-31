@@ -31,6 +31,23 @@ describe('UTIL', function () {
 
 	})
 
+	it('parseLocationFile - it should return the location data parsed', function (done) {
+
+		util.parseLocationFile(function(locations){
+
+			locations['wty'].name.should.equal('Westchester Square Young Adult')
+
+			done()
+
+		})
+
+
+
+
+
+	})
+
+
 
 
 

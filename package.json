@@ -3,6 +3,7 @@
   "author": "Matt Miller",
   "dependencies": {
     "config": "1.12.0",
+    "fast-csv": "^0.6.0",
     "glob": "^5.0.14",
     "moment": "^2.10.3",
     "mongodb": "^2.0.39",
@@ -13,7 +14,7 @@
   "devDependencies": {
     "mocha": "2.2.5",
     "should": "7.0.2"
-  },  
+  },
   "scripts": {
     "test": "mocha test"
   },
