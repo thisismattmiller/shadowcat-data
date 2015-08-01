@@ -19,49 +19,63 @@ util.parseLocationFile(function(locations){
 
 		counter++
 
+		var bibLocCode = 'multi'
+		if (bib.fixedFields['26'])	bibLocCode = bib.fixedFields['26'].value
 
 
-		//see if it has a item to get the locations
-		db.returnItemByBibIds(bib.id,function(err,items){
-
-				
-			if (items.length > 0){
-
-
-				for (var x in items){
-
-					var code = items[x].location.code.trim().toLowerCase()
-
-					if (locations[code]){
-
-
-					}else{
-
-						console.log("No location known for this:",items[x].location)
-
-						if (unknownCodes.indexOf(code) == -1){
-							unknownCodes.push(code)
-							log.info(items[x].location)
-						}
-							
-					}
-					
-				}
-				
-
-
-
-			}else{
-
-				//console.log("No item record:",bib.id)
-
-
+		if (bibLocCode != 'multi'){
+			bibLocCode = bibLocCode.trim().toLowerCase()
+			if (!locations[bibLocCode]){
+				console.log("No location known for this:",bibLocCode)
+				log.info(bib.fixedFields['26'])
 			}
 
-			
-			cursor.resume()
+		}
 
-		}, mongoConnection)
+		cursor.resume()
+
+
+		// //see if it has a item to get the locations
+		// db.returnItemByBibIds(bib.id,function(err,items){
+
+				
+		// 	if (items.length > 0){
+
+
+		// 		for (var x in items){
+
+		// 			var code = items[x].location.code.trim().toLowerCase()
+
+		// 			if (locations[code]){
+
+
+		// 			}else{
+
+		// 				console.log("No location known for this:",items[x].location)
+
+		// 				if (unknownCodes.indexOf(code) == -1){
+		// 					unknownCodes.push(code)
+		// 					log.info(items[x].location)
+		// 				}
+							
+		// 			}
+					
+		// 		}
+				
+
+
+
+		// 	}else{
+
+		// 		//console.log("No item record:",bib.id)
+
+
+		// 	}
+
+			
+		// 	cursor.resume()
+
+		// }, mongoConnection)
 		
 
 
