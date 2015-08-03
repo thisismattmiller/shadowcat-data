@@ -11,6 +11,44 @@ var microfilmWithNoItem = { "_id" : 10022855, "id" : 10022855, "updatedDate" : "
 describe('UTIL', function () {
 
 
+	it('coarseLCC - it should return the lcc class matched from the lookup file', function (done) {
+
+		util.parseLCC(function(lcc){
+
+
+			util.coarseLCC('M1045.5W436',lcc).should.equal('M1000-1075')
+			
+			util.coarseLCC('DA880.H4',lcc).should.equal('DA880-890')
+			util.coarseLCC('D829.N2',lcc).should.equal('D731-838')
+			util.coarseLCC('PC2175A44 1997',lcc).should.equal('PC2001-3761')
+
+
+			//broad strokes
+			util.coarseLCC('PS7834.B6',lcc).should.equal('PS1-3576')
+			util.coarseLCC('UC1',lcc).should.equal('UC10-780')
+
+			util.coarseLCC('KKH3073',lcc).should.equal('KKH')
+
+
+			
+
+			done()
+		})
+
+
+	})
+
+
+	it('parseLCC - it should return the lcc data parsed', function (done) {
+
+		util.parseLCC(function(lcc){
+			lcc['AC'][0].prefix.should.equal('AC')
+			done()
+		})
+
+
+	})
+
 	it('isResearchBib - ebook - it should return false', function () {		
 		util.isResearchBib(ebook).should.equal(false)		
 	})
