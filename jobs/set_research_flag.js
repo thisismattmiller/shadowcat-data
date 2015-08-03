@@ -32,7 +32,7 @@ util.parseLocationFile(function(locations){
 		}
 
 		//set it to SASB if it is one of our known problem records
-		if (knownResearch.indexOf(bib.id)) bibLocCode = 'ma'
+		if (knownResearch.indexOf(bib.id) > -1) bibLocCode = 'ma'
 
 
 
