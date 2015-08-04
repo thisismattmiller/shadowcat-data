@@ -3,6 +3,7 @@
 var db = require("../lib/db.js")
 var util = require("../lib/util.js")
 var async = require("async")
+var fs = require("fs")
 
 var counter = 0
 
@@ -21,59 +22,94 @@ util.parseLCC(function(lcc){
 
 	}
 
-	searchArray.shift()
+	var results = {}
+
 
 	var lookup = function(){
 
-		console.log(searchArray[0])
+		if (!searchArray[0]) return false
+
 		db.returnBibByCoarseLCC(searchArray[0],function(err,docs,mongoConnection){
+
 
 			if (err) console.log("ERR:",err)
 
-			searchArray.shift()
+			
 
-			console.log(docs.length)
 
-			var bibIds = []
-			var docObj = {}
+			var records =[]
+
+			var years = []
 			for (var x in docs){
-				bibIds.push(docs[x].id)
-				docObj[docs[x].id] = docs[x]
+				years.push(docs[x].publishYear)
 			}
 
-			//console.log(bibIds)
-			console.log("NEXT ->",searchArray.length)
+			years = years.sort(function (a, b) {return a - b;})
 
-			//db.returnItemByBibIds()
+			var deDupeYears = []
+			for (var x in years){
+				if (deDupeYears.indexOf(years[x]) === -1) deDupeYears.push(years[x])
+			}
 
-			//loop through all the bibids an find their item count and update the doc
-			async.mapSeries(bibIds, function(id,cb){
+			var added = []
+			for (var year in deDupeYears){
 
-				console.log("in hurrr",id)
+				year = deDupeYears[year]
 
-				db.returnItemByBibIds(id,function(err,doc){
 
-					if (doc[0]){
+				for (var r in docs){
 
-						console.log("\t",doc[0].id)
+					r = docs[r]
+
+					if (r.publishYear === year){
+
+
+						if (added.indexOf(r.id)===-1){
+
+							var record = {
+
+								publishYear: (!r.publishYear) ? "undefined" : r.publishYear,
+								id : r.id,
+								title : r.title,
+								author : r.author,
+								'classify:holdings' : r['classify:holdings'],
+								'sc:usageCount' : (!r['sc:usageCount']) ? -1 : r['sc:usageCount'],
+								'classify:creatorVIAF' : r['classify:creatorVIAF']
+							}
+
+							records.push(record)
+
+							added.push(r.id)
+
+						}
+
 					}
-					
-					cb(null,id)
 
 
-				})
-
-				
+				}
 
 
-			},function(err, results){
 
-				if (err) console.log(err)
 
+			}
+
+
+			//write it out / save it to the DB
+			fs.writeFile(__dirname + "/../data/" + searchArray[0] + ".json", JSON.stringify(records), function(err) {
+				if(err) console.log(err)
+
+
+				searchArray.shift()
+
+				if (searchArray.length === 0) mongoConnection.close()
 				lookup()
 
 
+
+
 			})
+
+
 
 
 
