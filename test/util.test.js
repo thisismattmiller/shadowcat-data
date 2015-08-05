@@ -13,6 +13,27 @@ var musicCd = { "_id" : 20648159, "id" : 20648159, "updatedDate" : "2015-08-04T0
 describe('UTIL', function () {
 
 
+	it('cleanClassMark - it should parse the root of a classmark and return', function (done) {
+
+		util.cleanClassMark("JFF 89-526")[0].should.equal('JFF')
+		util.cleanClassMark("*OFX 84-1995")[0].should.equal('*OFX')
+		util.cleanClassMark("JPB 83-155 no. 178 ")[0].should.equal('JPB')
+		util.cleanClassMark("Sc E 85-200")[0].should.equal('Sc E')
+		util.cleanClassMark("Sc Ser.-M .B575")[0].should.equal('Sc Ser.-M')
+		util.cleanClassMark("MFXZ (Hoffmann) 96-8147")[0].should.equal('MFXZ')
+		util.cleanClassMark("3-MPW+ 84-2363")[0].should.equal('3-MPW')
+
+		util.cleanClassMark("MSS DIV IGIC POE M18")[0].should.equal('MSS DIV')
+		util.cleanClassMark("J VTH 562 H")[0].should.equal('VTH')
+
+
+
+
+
+		done()
+	})
+
+
 	it('coarseLCC - it should return the lcc class matched from the lookup file', function (done) {
 
 		util.parseLCC(function(lcc){
