@@ -3,7 +3,6 @@
 var db = require("../lib/db.js")
 var util = require("../lib/util.js")
 
-var counter = 0
 
 var log = require('simple-node-logger').createSimpleLogger(__dirname + '/../log/unknown_location_codes.log');
 unknownCodes = []
@@ -13,13 +12,7 @@ util.parseLocationFile(function(locations){
 
 	db.allBibsReverse(function(bib,cursor,mongoConnection){
 
-		process.stdout.clearLine()
-		process.stdout.cursorTo(0)
-		process.stdout.write( counter + "" )
 
-		counter++
-
-		console.log("|",bib.id)
 
 
 		if (counter > 500000){
@@ -114,8 +107,6 @@ util.parseLocationFile(function(locations){
 
 						if (err) console.log("ERRROR:",err)
 
-						console.log(updateRecord)
-						console.log(r.result)
 						cursor.resume()
 
 					}, mongoConnection)
@@ -164,9 +155,6 @@ util.parseLocationFile(function(locations){
 
 
 					if (err) console.log("ERRROR:",err)
-
-					console.log(updateRecord)
-					console.log(r.result)
 
 					cursor.resume()
 
