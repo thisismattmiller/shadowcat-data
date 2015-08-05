@@ -6,13 +6,13 @@ var util = require("../lib/util.js")
 
 var log = require('simple-node-logger').createSimpleLogger(__dirname + '/../log/unknown_location_codes.log');
 unknownCodes = []
-
+counter = 0
 
 util.parseLocationFile(function(locations){
 
 	db.allBibsReverse(function(bib,cursor,mongoConnection){
 
-
+		counter++
 
 
 		if (counter > 500000){
