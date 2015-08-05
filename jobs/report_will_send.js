@@ -21,7 +21,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 
-	if (bib.bibLevel && bib.materialType && bib.publishYear){
+	if (bib.bibLevel && bib.materialType){
 
 
 		if (bib.bibLevel.code.trim() == 'm' || bib.bibLevel.code.trim() == 's'){
@@ -29,6 +29,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 			if (bib.materialType.code.trim() == 'a'){
 
+				if (!bib.publishYear) bib.publishYear = 0
 				if (bib['sc:publishYear']) bib.publishYear = bib['sc:publishYear']
 
 
