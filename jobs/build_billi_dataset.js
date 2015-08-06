@@ -1,6 +1,7 @@
 #!/usr/local/bin/node
 
 var db = require("../lib/db.js")
+var util = require("../lib/util.js")
 
 var counter = 0
 
@@ -48,7 +49,14 @@ db.allBibs(function(doc,cursor,mongoConnection){
 			
 
 			for (var x in callNumbers){
-				console.log(doc.id + " | " + callNumbers[x])
+
+				try{
+					console.log(doc.id + " | " + callNumbers[x] + " | " + util.cleanClassMark(callNumbers[x]))
+
+				}catch (e){
+
+					console.log(doc.id, e)
+				}
 			}
 
 

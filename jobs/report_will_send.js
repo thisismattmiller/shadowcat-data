@@ -51,6 +51,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 						if (bibLocCode != 'multi'){
 							bibLocCode = bibLocCode.trim().toLowerCase()
+							allCodes.push(bibLocCode)
 						}
 
 
