@@ -83,6 +83,10 @@ util.parseLCC(function(allLccs){
 				}
 
 
+			}else{
+
+				cursor.resume()
+
 			}
 
 			
