@@ -51,8 +51,9 @@ describe('UTIL', function () {
 			util.coarseLCC('UC1',lcc).should.equal('UC10-780')
 
 			util.coarseLCC('KKH3073',lcc).should.equal('KKH')
+			util.coarseLCC('HG1311.I7',lcc).should.equal('HG451-1496')
 
-
+			
 			
 
 			done()
