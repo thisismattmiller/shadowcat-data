@@ -48,7 +48,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 
-	var updateRecord = { '_id' : bib.id }
+	var updateRecord = { id : bib.id }
 
 
 	//do we have any oclc?

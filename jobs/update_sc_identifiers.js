@@ -33,7 +33,7 @@ var counterOclc = 0, counterIsbn = 0, counterIssn = 0
 //update the log every 15min
 
 setInterval(function(){
-	log.info('[update_sc_identifiers] Modified ', counterRecords , ' records. OCLC:',counterOclc," ISBN: ",counterIsbn, " ISSN: ", counterIssn)
+	log.info('[update_sc_identifiers] Seeked: ', counter, ' Modified ', counterRecords , ' records. OCLC:',counterOclc," ISBN: ",counterIsbn, " ISSN: ", counterIssn)
 },300000)
 	
 
@@ -56,7 +56,7 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 	var results = util.extractScIdentifiers(bib)
 
-	var updateRecord = { '_id' : bib.id }
+	var updateRecord = { id : bib.id }
 
 
 	//do we have any oclc?
@@ -85,6 +85,7 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 			if (err) console.log("ERRROR:",err)
 
 			console.log(updateRecord)
+			console.log(r.result)
 
 			cursor.resume()
 
