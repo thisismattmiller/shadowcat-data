@@ -84,8 +84,6 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 			if (err) console.log("ERRROR:",err)
 
-			console.log(updateRecord)
-
 			cursor.resume()
 
 		}, mongoConnection)
