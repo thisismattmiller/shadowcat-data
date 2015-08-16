@@ -22,7 +22,7 @@ var counterOclc = 0, counterIsbn = 0, counterIssn = 0
 //update the log every 15min
 
 setInterval(function(){
-	log.info('[update_sc_identifiers] Modified ', counterRecords , ' records. OCLC:',counterOclc," ISBN: ",counterIsbn, " ISSN: ", counterIssn)
+	log.info('[update_sc_identifiers] Seeked: ', counter, ' Modified ', counterRecords , ' records. OCLC:',counterOclc," ISBN: ",counterIsbn, " ISSN: ", counterIssn)
 },300000)
 	
 
