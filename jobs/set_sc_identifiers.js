@@ -87,7 +87,6 @@ db.allBibs(function(bib,cursor,mongoConnection){
 		db.updateBibRecord(updateRecord,function(err,r){
 
 			if (err) console.log("ERRROR:",err)
-				log.info('[update_sc_identifiers] Modified ', counterRecords , ' records. OCLC:',counterOclc," ISBN: ",counterIsbn, " ISSN: ", counterIssn)
 
 			cursor.resume()
 
