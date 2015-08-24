@@ -99,9 +99,9 @@ file.streamFile(fileIn,function(record,resume){
 					rs.push(JSON.stringify({
 						subject : record.subject,
 						predicate : 'skos:mappingRelation',
-						objecturi : 'lcc:'+resultsLcc,
-						objectliteral : null,
-						literaldatatype : null,
+						objectUri : 'lcc:'+resultsLcc,
+						objectLiteral : null,
+						literalDataType : null,
 						provenance : JSON.stringify({"@context": "http://www.w3.org/2004/02/skos/core#","@graph": [{"@id": "_:b0","changeNote": "2015-08-23:Created:Billi"}]})
 					}) + "\n")
 				}
@@ -110,9 +110,9 @@ file.streamFile(fileIn,function(record,resume){
 					rs.push(JSON.stringify({
 						subject : record.subject,
 						predicate : 'skos:mappingRelation',
-						objecturi : 'dewey:'+resultsDcc,
-						objectliteral : null,
-						literaldatatype : null,
+						objectUri : 'dewey:'+resultsDcc,
+						objectLiteral : null,
+						literalDataType : null,
 						provenance : JSON.stringify({"@context": "http://www.w3.org/2004/02/skos/core#","@graph": [{"@id": "_:b0","changeNote": "2015-08-23:Created:Billi"}]})
 					}) + "\n")
 				}
@@ -122,9 +122,9 @@ file.streamFile(fileIn,function(record,resume){
 					rs.push(JSON.stringify({
 						subject : record.subject,
 						predicate : 'skos:mappingRelation',
-						objecturi : 'class:'+ resultsLccRange.toLowerCase().replace(/\s/g,'_'),
-						objectliteral : null,
-						literaldatatype : null,
+						objectUri : 'class:lccr'+ resultsLccRange.toLowerCase().replace(/\s/g,'_'),
+						objectLiteral : null,
+						literalDataType : null,
 						provenance : JSON.stringify({"@context": "http://www.w3.org/2004/02/skos/core#","@graph": [{"@id": "_:b0","changeNote": "2015-08-23:Created:Billi"}]})
 					}) + "\n")
 				}
@@ -132,9 +132,9 @@ file.streamFile(fileIn,function(record,resume){
 				rs.push(JSON.stringify({
 					subject : record.subject,
 					predicate : 'library:holdingsCount',
-					objecturi : null,
-					objectliteral : usageCount,
-					literaldatatype : "xml:integer",
+					objectUri : null,
+					objectLiteral : usageCount,
+					literalDataType : "xml:integer",
 					provenance : JSON.stringify({"@context": "http://www.w3.org/2004/02/skos/core#","@graph": [{"@id": "_:b0","changeNote": "2015-08-23:Created:Billi"}]})
 				}) + "\n")
 				
