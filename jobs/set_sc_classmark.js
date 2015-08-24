@@ -104,7 +104,9 @@ util.parseLocationFile(function(locations){
 		//lowercase remove periods
 		if (newResults){
 			for (var x in newResults){
-				newResults[x] = newResults[x].toLowerCase().replace(/\./g,'')
+				if (typeof newResults[x] === 'string'){
+					newResults[x] = newResults[x].toLowerCase().replace(/\./g,'')
+				}
 			}			
 		}
 
