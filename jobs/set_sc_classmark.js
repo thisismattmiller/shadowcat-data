@@ -103,7 +103,9 @@ util.parseLocationFile(function(locations){
 
 		//lowercase remove periods
 		if (newResults){
-			newResults = newResults.toLowerCase().replace(/\./g,'')
+			for (var x in newResults){
+				newResults[x] = newResults[x].toLowerCase().replace(/\./g,'')
+			}			
 		}
 
 
