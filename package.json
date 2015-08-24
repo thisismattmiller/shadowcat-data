@@ -3,6 +3,7 @@
   "author": "Matt Miller",
   "dependencies": {
     "async": "^1.4.0",
+    "byline": "^4.2.1",
     "config": "1.12.0",
     "fast-csv": "^0.6.0",
     "glob": "^5.0.14",

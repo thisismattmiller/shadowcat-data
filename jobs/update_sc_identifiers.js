@@ -30,7 +30,7 @@ var counter = 0, counterRecords = 0
 var counterOclc = 0, counterIsbn = 0, counterIssn = 0
 
 
-//update the log every 15min
+//update the log every 5min
 
 setInterval(function(){
 	log.info('[update_sc_identifiers] Seeked: ', counter, ' Modified ', counterRecords , ' records. OCLC:',counterOclc," ISBN: ",counterIsbn, " ISSN: ", counterIssn)

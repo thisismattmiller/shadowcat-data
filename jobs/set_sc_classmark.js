@@ -101,6 +101,10 @@ util.parseLocationFile(function(locations){
 
 		}
 
+		//lowercase remove periods
+		if (newResults){
+			newResults = newResults.toLowerCase().replace(/\./g,'')
+		}
 
 
 		var updateRecord  = {
