@@ -81,9 +81,11 @@ file.streamFile(fileIn,function(record,resume){
 
 		var lcc ={}, dcc = {}, lccRange = {}
 
-		record.objectLiteral = record.objectLiteral.replace("_",' ');
+		record.objectLiteral = record.objectLiteral.replace(/\_/gi,' ')
 
-		db.allBibsByClassmark(record.objectLiteral, function(bib,cursor,mongoConnection){
+		var searchFor = record.objectLiteral.toLowerCase().replace(/\./,'')
+
+		db.allBibsByClassmark(searchFor, function(bib,cursor,mongoConnection){
 
 
 
