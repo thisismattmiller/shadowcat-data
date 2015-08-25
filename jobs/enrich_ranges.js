@@ -75,7 +75,7 @@ file.streamFile(fileIn,function(record,resume){
 
 
 
-	if (done.indexOf(record.objectUri) === -1 && record.objectUri.search(/[0-9]/) > -1 && record.objectUri.search(/^[0-9]/) == -1  && record.subject.search('class')>-1 && record.objectUri.search('class')>-1 && record.predicate === 'skos:mappingRelation' && record.subject.search('fixed') == -1){
+	if (done.indexOf(record.objectUri) === -1 && record.objectUri.search(/[0-9]/) > -1 && record.objectUri.search(/[0-9]\-/) == -1  && record.subject.search('class')>-1 && record.objectUri.search('class')>-1 && record.predicate === 'skos:mappingRelation' && record.subject.search('fixed') == -1){
 
 
 		done.push(record.objectUri)
