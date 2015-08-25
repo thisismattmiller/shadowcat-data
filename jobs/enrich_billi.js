@@ -120,7 +120,7 @@ file.streamFile(fileIn,function(record,resume){
 
 				if (resultsLccRange){
 
-					if (resultsLccRange.search(/[0-9]/) ===-1) resultsLccRange = resultsLccRange + '1-999'
+					if (resultsLccRange.search(/[0-9]/) ===-1) resultsLccRange = resultsLccRange + '1-10000'
 
 					rs.push(JSON.stringify({
 						subject : record.subject,
@@ -130,6 +130,19 @@ file.streamFile(fileIn,function(record,resume){
 						literalDataType : null,
 						provenance : JSON.stringify({"@context": "http://www.w3.org/2004/02/skos/core#","@graph": [{"@id": "_:b0","changeNote": "2015-08-23:Created:Billi"}]})
 					}) + "\n")
+
+
+					//add the inverse from the range to the billings
+					rs.push(JSON.stringify({
+						subject : 'class:'+ resultsLccRange.toLowerCase().replace(/\s/g,'_'),
+						predicate : 'skos:mappingRelation',
+						objectUri : record.subject,
+						objectLiteral : null,
+						literalDataType : null,
+						provenance : JSON.stringify({"@context": "http://www.w3.org/2004/02/skos/core#","@graph": [{"@id": "_:b0","changeNote": "2015-08-23:Created:Billi"}]})
+					}) + "\n")
+
+
 				}
 
 				rs.push(JSON.stringify({
