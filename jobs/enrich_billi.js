@@ -119,10 +119,13 @@ file.streamFile(fileIn,function(record,resume){
 
 
 				if (resultsLccRange){
+
+					if (resultsLccRange.search(/[0-9]/) ===-1) resultsLccRange = resultsLccRange + '1-999'
+
 					rs.push(JSON.stringify({
 						subject : record.subject,
 						predicate : 'skos:mappingRelation',
-						objectUri : 'class:lccr'+ resultsLccRange.toLowerCase().replace(/\s/g,'_'),
+						objectUri : 'class:'+ resultsLccRange.toLowerCase().replace(/\s/g,'_'),
 						objectLiteral : null,
 						literalDataType : null,
 						provenance : JSON.stringify({"@context": "http://www.w3.org/2004/02/skos/core#","@graph": [{"@id": "_:b0","changeNote": "2015-08-23:Created:Billi"}]})
