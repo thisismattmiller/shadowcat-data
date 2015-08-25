@@ -5,7 +5,7 @@ var db = require("../lib/db.js")
 
 
 
-var fileIn = __dirname + '/../data/billings_enriched.json'
+var fileIn = __dirname + '/../data/lccrange_triples.json'
 var fileOut = __dirname + '/../data/ranges_enriched.json'
 
 
