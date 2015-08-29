@@ -7,6 +7,7 @@ var moment = require('moment')
 var util = require("../lib/util.js")
 
 var key = false
+var activity = false
 
 var opts = {
     logDirectory: __dirname + '/../log',
@@ -26,6 +27,25 @@ util.checkIfRunning(function(isRunning){
       	process.exit()
 	}
 })
+
+//5min timer to make sure the script is not running past the desginated timeframe
+//every 5 min check the activity flag
+setInterval(function(){
+	if (!util.checkItemUpdateTime()){
+		log.info('[update_item] Timer check caught us running past run window, quitting. ')
+		util.exit()
+	}else{
+
+		if (activity){
+			activity = false
+		}else{
+			log.info('[update_item] There has been no activity for 5 min, quitting. ')
+			util.exit()
+		}
+	}
+},300000)
+
+
 
 
 
@@ -99,6 +119,8 @@ if (util.checkItemUpdateTime()){
 					var next = function(data){
 
 						log.info('[update_item] Downloaded ' + data['entries'].length + " records")
+						
+						activity = true
 
 
 						var totalRecords = -1

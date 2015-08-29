@@ -10,6 +10,7 @@ var util = require("../lib/util.js")
 var moment = require('moment')
 
 var key = false
+var activity = false
 
 var opts = {
     logDirectory: __dirname + '/../log',
@@ -31,6 +32,28 @@ util.checkIfRunning(function(isRunning){
       	process.exit()
 	}
 })
+
+
+//5min timer to make sure the script is not running past the desginated timeframe
+//every 5 min check the activity flag
+setInterval(function(){
+	if (!util.checkBibUpdateTime()){
+		log.info('[update_bib] Timer check caught us running past run window, quitting. ')
+		util.exit()
+	}else{
+
+		if (activity){
+			activity = false
+		}else{
+			log.info('[update_bib] There has been no activity for 5 min, quitting. ')
+			util.exit()
+		}
+	}
+},300000)
+
+
+
+
 
 
 
@@ -74,6 +97,8 @@ if (util.checkBibUpdateTime()){
 
 					//lets define a function we can pass as the callback of the api response, so when the data is ready
 					var next = function(data){
+
+						activity = true
 
 						log.info('[update_bib] Downloaded ' + data['entries'].length + " records")
 
