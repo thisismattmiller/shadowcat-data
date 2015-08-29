@@ -83,6 +83,8 @@ if (util.checkBibUpdateTime()){
 
 					key = keyValue;
 
+					log.info('[update_bib] Got API key:', keyValue)
+
 					//if that worked then make sure our key stays up to date every 50 min
 					setInterval(function(){
 						api.authToken(function(keyValue){
