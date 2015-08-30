@@ -14,6 +14,12 @@ db.allBibs(function(bib,cursor,mongoConnection){
 	process.stdout.cursorTo(0)
 	process.stdout.write( counter + " | " + totalChanged)
 
+
+	if (!bib){
+		console.log("Complete:", counter + " | " + totalChanged)
+		return true;
+	}
+
 	counter++
 
 	var hasChecked = (bib['sc:classifyCheck']) ? true : false
@@ -65,6 +71,8 @@ db.allBibs(function(bib,cursor,mongoConnection){
 			
 
 			db.insertAPIClassifyRecord(data,function(err,results){
+
+				totalChanged++
 
 				cursor.resume()
 
