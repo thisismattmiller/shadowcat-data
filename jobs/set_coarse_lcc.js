@@ -124,6 +124,7 @@ util.parseLCC(function(allLccs){
 			db.updateBibRecord(updateRecord,function(err,r){
 
 			 	if (err) console.log("ERRROR:",err)
+			 	totalChanged++
 				cursor.resume()
 
 			}, mongoConnection)
