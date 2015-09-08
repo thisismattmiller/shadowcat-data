@@ -16,10 +16,21 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 	if (!bib) console.log("DONE!", counter, hasOclc)
 
+	var oclcFlag = false
 
-	if (bib['sc:oclc'] || bib['classify:oclc'] || bib['lc:oclc']){
-		hasOclc++
+
+	if (bib['sc:oclc']){
+		if (bib['sc:oclc'].length > 0) oclcFlag = true
 	}
+	if (bib['classify:oclc']){
+		if (bib['classify:oclc'].length > 0) oclcFlag = true
+	}
+	if (bib['lc:oclc']){
+		if (bib['lc:oclc'].length > 0) oclcFlag = true
+	}
+
+	if (oclcFlag) hasOclc++
+		
 
 	cursor.resume()
 
