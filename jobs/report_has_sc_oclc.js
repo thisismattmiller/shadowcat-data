@@ -23,10 +23,8 @@ db.allBibs(function(bib,cursor,mongoConnection){
 		if (bib['sc:oclc'].length > 0) oclcFlag = true
 	}
 
-	if (oclcFlag) hasOclc++
-		
+	if (oclcFlag) hasOclc++		
 	cursor.resume()
-
 
 })
 
