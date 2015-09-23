@@ -75,7 +75,7 @@ file.streamFile(fileIn,function(record,resume){
 
 
 
-	if (record.subject.search('class')>-1 && record.predicate === 'skos:hiddenLabel' ){
+	if (record.subject.search('class')>-1 && record.predicate === 'skos:hiddenLabel' && record.subject.search('fixed') == -1){
 
 		var usageCount = 0;
 
