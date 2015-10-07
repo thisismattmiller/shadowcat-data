@@ -60,7 +60,8 @@ db.allBibs(function(bib,cursor,mongoConnection){
 			cursor.resume()
 
 			return true
-		})
+		},mongoConnection)
+		
 	}else{
 		cursor.resume()
 	}
