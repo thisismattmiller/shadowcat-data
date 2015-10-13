@@ -196,6 +196,33 @@ describe('UTIL', function () {
 
 	})
 
+	it('returnNacoFormat - ', function () {
+
+		//standard
+		var x = {
+            "fieldTag": "a",
+            "ind1": "1",
+            "ind2": " ",
+            "marcTag": "100",
+            "subfields": [
+                {
+                    "content": "Gogh, Vincent van,",
+                    "tag": "a"
+                },
+                {
+                    "content": "1853-1890.",
+                    "tag": "d"
+                }
+            ]
+        }
+
+        var n = util.returnNacoFormat(x)
+
+
+
+
+	})
+
 
 
 
