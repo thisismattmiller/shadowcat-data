@@ -22,7 +22,7 @@ var relatorsCodes = {}
 
 
 
-setTimeout(function(){
+setInterval(function(){
 
 	var r = {
 		countTotalNames: countTotalNames,
