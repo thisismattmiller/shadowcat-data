@@ -303,58 +303,88 @@ db.returnViafLookup(function(err,viafLookup){
 					// 	}
 					// })
 
-					
+					//the idea is to try and match local names to worldcat names at an increasingly higher threashold
+					//until there are no duplicate VIAF identfiers among the agents
 
-					//now try to match anything left with the viaf entries
-					newNames.map(function(n){
-						if (!n.viafId){			
+					var ogNewNames = JSON.parse(JSON.stringify(newNames))
+					var hasDupe = true, threshold = 0, dupeCheckCount = 0
 
-							var bestMatch = false, bestScore = -100;				
-							for (var x in viafNameLookup){
+					while (hasDupe === true && dupeCheckCount < 11){
 
-
-
-								//all we really care about is if this possibly local name is represented somehow in the 
-								//data from world cat or classify
-								
-								var scoreLc = 0, scoreViaf = 0, scoreViafAlt = 0
-
-								if (viafNameLookup[x].nameLc) scoreLc = n.name.score(viafNameLookup[x].nameLc,0.5)
-								if (viafNameLookup[x].nameViaf) scoreViaf = n.name.score(viafNameLookup[x].nameViaf,0.5)
-								if (viafNameLookup[x].nameViafAlt) scoreViafAlt = n.name.score(viafNameLookup[x].nameViafAlt,0.5)
-
-								if ( scoreLc > 0.2 || scoreViaf > 0.2 || scoreViafAlt > 0.2){		
+						threshold = threshold + 0.1
+						dupeCheckCount++
+						hasDupe=false
 
 
-									var newScore = (scoreLc >= scoreViaf) ? scoreLc : scoreViaf
-									if (scoreViafAlt > newScore) newScore = scoreViafAlt
+						newNames = JSON.parse(JSON.stringify(ogNewNames))
 
-									//console.log(n.name, " | ", viafNameLookup[x].nameLc, " > ",scoreLc)
-									if (newScore>bestScore) bestMatch = x
+						//now try to match anything left with the viaf entries
+						newNames.map(function(n){
+							if (!n.viafId){			
+
+								var bestMatch = false, bestScore = -100;				
+								for (var x in viafNameLookup){
+
+									//all we really care about is if this possibly local name is represented somehow in the 
+									//data from world cat or classify
+									
+									var scoreLc = 0, scoreViaf = 0, scoreViafAlt = 0
+
+									if (viafNameLookup[x].nameLc) scoreLc = n.name.score(viafNameLookup[x].nameLc,0.5)
+									if (viafNameLookup[x].nameViaf) scoreViaf = n.name.score(viafNameLookup[x].nameViaf,0.5)
+									if (viafNameLookup[x].nameViafAlt) scoreViafAlt = n.name.score(viafNameLookup[x].nameViafAlt,0.5)
+
+									if ( scoreLc > threshold || scoreViaf > threshold || scoreViafAlt > threshold){		
+
+
+										var newScore = (scoreLc >= scoreViaf) ? scoreLc : scoreViaf
+										if (scoreViafAlt > newScore) newScore = scoreViafAlt
+
+										//console.log(n.name, " | ", viafNameLookup[x].nameLc, " > ",scoreLc)
+										if (newScore>bestScore) bestMatch = x
+									}
 								}
+
+								if (bestMatch){
+									for (var y in newNames){
+										if (newNames[y].name==n.name){
+											newNames[y].matchedViaf = parseInt(bestMatch)
+											//console.log('---------',bib._id)
+											//console.log(newNames[y].name, " === ", viafNameLookup[bestMatch])	
+
+										}								
+																				
+									}
+
+								}
+
+
+
 							}
 
-							if (bestMatch){
-								for (var y in newNames){
-									if (newNames[y].name==n.name){
-										newNames[y].matchedViaf = parseInt(bestMatch)
-										//console.log('---------',bib._id)
-										//console.log(newNames[y].name, " === ", viafNameLookup[bestMatch])	
 
-									}								
-																			
+						})
+
+						var dupeCheck = {}
+
+						newNames.map(function(n){
+
+							if (n.matchedViaf){
+								if (dupeCheck[n.matchedViaf+n.relator.toString()]){
+									hasDupe=true
+								}else{
+									dupeCheck[n.matchedViaf+n.relator.toString()] = true
 								}
-
 							}
+						})
 
+					}		
+	
 
+					if (hasDupe){
+						console.log("\n\nRecord still contains dupes:",bib._id,"\n\n")
+					}
 
-						}
-
-
-					})
-
-					
 
 
 
