@@ -20,12 +20,12 @@ if (cluster.isMaster) {
 	var countTotal = 0, countTotalFast = 0, countTotalLocal = 0, countBibRecords = 0
 
 	//empty out the FAST terms table that we build for later use
-	db.returnRegistryDb(function(err, databaseRegistry){
-		var termsSameAsCollection = databaseRegistry.collection('termsSameAs')
-		termsSameAsCollection.drop(function(err,results){
-			databaseRegistry.close()
-		})
-	})
+	// db.returnRegistryDb(function(err, databaseRegistry){
+	// 	var termsSameAsCollection = databaseRegistry.collection('termsSameAs')
+	// 	termsSameAsCollection.drop(function(err,results){
+	// 		databaseRegistry.close()
+	// 	})
+	// })
 
 
 	//maintain a queue of work for the workers to get through
@@ -37,6 +37,16 @@ if (cluster.isMaster) {
 			return false
 		}
 
+		if (bib['sc:terms']){
+			//it already has the terms done
+			countBibRecords++
+			process.stdout.clearLine()
+			process.stdout.cursorTo(0)			
+			process.stdout.write("Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal + " countTotalFast: " + countTotalFast + " countTotalLocal: " + countTotalLocal )
+
+			cursor.resume()
+			return false
+		}
 		
 
 		queue[bib._id] = { bib: bib, working: false }
@@ -48,7 +58,7 @@ if (cluster.isMaster) {
 
 			setTimeout(function(){
 				cursor.resume()
-			},2000)
+			},10000)
 
 
 		}
@@ -73,6 +83,8 @@ if (cluster.isMaster) {
 					}
 				}
 				console.log("Nothing letf to work in the queue!")
+
+				worker.send({ sleep: true })
 			}
 			if (msg.res) {
 
@@ -83,7 +95,7 @@ if (cluster.isMaster) {
 
 				process.stdout.clearLine()
 				process.stdout.cursorTo(0)
-				process.stdout.write("Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal + " countTotalFast: " + countTotalFast + " countTotalLocal: " + countTotalLocal)
+				process.stdout.write("Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal + " countTotalFast: " + countTotalFast + " countTotalLocal: " + countTotalLocal + " last: " + msg.res)
 
 				
 
@@ -113,21 +125,46 @@ if (cluster.isMaster) {
 
 	}
 
-	setTimeout(function(){
-
-		console.log("Queue is: ", Object.keys(queue).length)
-
-		buildWorker()
-		buildWorker()
-		buildWorker()
-		buildWorker()
-		buildWorker()
 
 
+	var check = setInterval(function(){
+
+		if (Object.keys(queue).length > 1000){
+
+			clearTimeout(check)
+
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+			buildWorker()
+
+		}else{
+			console.log("Nothing in queue yet.")
+		}
 
 
 	},10000)
-
 
 
 
@@ -157,6 +194,16 @@ if (cluster.isMaster) {
 
 
 			var processRecord = function(msg) {
+
+				if (msg.sleep){
+
+					console.log('Worker #',cluster.worker.id," No work! Going to sleep for 300 sec ")
+
+					setTimeout(function(){process.send({ req: true });},300000)
+				
+
+					return true
+				}
 
 
 				if (msg.req){
@@ -188,16 +235,16 @@ if (cluster.isMaster) {
 
 
 
-						if (term.nameLocal && term.nameFast){
-							//if they are not the same we are intrested in what is being mapped from local to FAST and 
-							//if that that can be used globally
-							if (util.singularize(util.normalizeAndDiacritics(term.nameLocal)) != util.singularize(util.normalizeAndDiacritics(term.nameFast))){
-								//throw this into the database for later use
-								termsSameAs.insert({ fast: term.fast, nameLocal:term.nameLocal, nameFast: term.nameFast  },function(err,result){
-									if (err) console.log(err)
-								})
-							}
-						}
+						// if (term.nameLocal && term.nameFast){
+						// 	//if they are not the same we are intrested in what is being mapped from local to FAST and 
+						// 	//if that that can be used globally
+						// 	if (util.singularize(util.normalizeAndDiacritics(term.nameLocal)) != util.singularize(util.normalizeAndDiacritics(term.nameFast))){
+						// 		//throw this into the database for later use
+						// 		termsSameAs.insert({ fast: term.fast, nameLocal:term.nameLocal, nameFast: term.nameFast  },function(err,result){
+						// 			if (err) console.log(err)
+						// 		})
+						// 	}
+						// }
 
 						//if it has a FAST id  we need to make sure:
 
