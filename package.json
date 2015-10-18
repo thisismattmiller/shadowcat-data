@@ -12,6 +12,7 @@
     "moment": "^2.10.3",
     "mongodb": "^2.0.39",
     "moniker": "^0.1.2",
+    "pluralize": "^1.2.1",
     "ps-node": "0.0.4",
     "request": "2.53.0",
     "simple-node-logger": "^0.92.21",

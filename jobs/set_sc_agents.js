@@ -6,7 +6,7 @@ var async = require("async")
 var fs = require("fs")
 var human = require('humanparser')
 
-require("string_score");
+require("string_score")
 
 var counter = 0
 
