@@ -307,7 +307,7 @@ db.returnViafLookup(function(err,viafLookup){
 					//until there are no duplicate VIAF identfiers among the agents
 
 					var ogNewNames = JSON.parse(JSON.stringify(newNames))
-					var hasDupe = true, threshold = 0, dupeCheckCount = 0
+					var hasDupe = true, threshold = 0.1, dupeCheckCount = 0
 
 					while (hasDupe === true && dupeCheckCount < 11){
 
@@ -340,6 +340,8 @@ db.returnViafLookup(function(err,viafLookup){
 										var newScore = (scoreLc >= scoreViaf) ? scoreLc : scoreViaf
 										if (scoreViafAlt > newScore) newScore = scoreViafAlt
 
+
+
 										//console.log(n.name, " | ", viafNameLookup[x].nameLc, " > ",scoreLc)
 										if (newScore>bestScore) bestMatch = x
 									}
@@ -349,8 +351,9 @@ db.returnViafLookup(function(err,viafLookup){
 									for (var y in newNames){
 										if (newNames[y].name==n.name){
 											newNames[y].matchedViaf = parseInt(bestMatch)
+
 											//console.log('---------',bib._id)
-											//console.log(newNames[y].name, " === ", viafNameLookup[bestMatch])	
+											//console.log(newNames[y].name, " === ", viafNameLookup[bestMatch],bestScore)	
 
 										}								
 																				
@@ -418,6 +421,8 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 				  		if (newNames.length == 1 && unusedViaf.length == 1){
+
+
 
 
 				  			for (var y in newNames){
@@ -531,6 +536,8 @@ db.returnViafLookup(function(err,viafLookup){
 			   			'sc:agents' : agents
 			   		}
 
+
+
 			   		db.updateBibRecord(update,function(){
 
 
@@ -608,6 +615,8 @@ db.returnViafLookup(function(err,viafLookup){
 		   			id : bib._id,
 		   			'sc:agents' : agents
 		   		}
+
+
 
 		   		db.updateBibRecord(update,function(){
 
