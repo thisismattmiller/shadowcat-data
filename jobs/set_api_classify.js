@@ -27,7 +27,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 	//if (!hasChecked){
-	if (!bib['sc:local'])
+	if (!bib['sc:local']){
 
 
 		//build out the data we would use in classify
