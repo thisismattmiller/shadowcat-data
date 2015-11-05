@@ -14,13 +14,20 @@ db.allBibs(function(bib,cursor,mongoConnection){
 	process.stdout.cursorTo(0)
 	process.stdout.write( counter + " | " + totalChanged)
 
+	counter++
+	
+	if (counter < 2458560){
+		cursor.resume()
+		return true
+	}
+
 
 	if (!bib){
 		console.log("Complete:", counter + " | " + totalChanged)
 		return true;
 	}
 
-	counter++
+	
 
 	var hasChecked = (bib['sc:classifyCheck']) ? true : false
 	
@@ -80,7 +87,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 			//console.log(data)
 			//if (results) console.log(results.result)
 
-		})
+		},mongoConnection)
 
 		return true
 
