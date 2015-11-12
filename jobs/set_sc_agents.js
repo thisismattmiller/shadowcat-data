@@ -51,6 +51,22 @@ db.returnViafLookup(function(err,viafLookup){
 		process.stdout.cursorTo(0)
 		process.stdout.write( counter + " | " +  "countTotalNames: " + countTotalNames + " countFoundInLC: " + countFoundInLC + " countFoundInViafViaOclc: " + countFoundInViafViaOclc + " countLocal: " + countLocal + " countAddedUnmatchedNames: " + countAddedUnmatchedNames )
 
+
+		if (!bib){
+
+			console.log("\n\nFinshed!\n\n")
+			setTimeout(function(){
+
+
+				process.exit()
+			},1000)
+
+
+			return
+
+
+		}
+
 		counter++
 
 		var names = []
@@ -143,6 +159,8 @@ db.returnViafLookup(function(err,viafLookup){
 
 		var newNames = []
 
+		//console.log("names:",names)
+
 		async.each(names, function(name, eachCallback) {
 
 
@@ -190,6 +208,9 @@ db.returnViafLookup(function(err,viafLookup){
 
 		   	var checkOclc = false
 		   	newNames.map(function(name){if (!name.viafId) checkOclc = true})
+
+		   //	console.log("checkOclc:",checkOclc)
+		   //	console.log("newNames:",newNames)
 
 		   	if (checkOclc){
 
@@ -290,7 +311,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 					//loop through and fill out any data
 
-
+					//console.log("viafAry:",viafAry)
 
 					viafAry.map(function(v){
 						if (viafNameLookup[v._id]) viafNameLookup[v._id].nameLc = v.prefLabel
@@ -306,88 +327,126 @@ db.returnViafLookup(function(err,viafLookup){
 					//the idea is to try and match local names to worldcat names at an increasingly higher threashold
 					//until there are no duplicate VIAF identfiers among the agents
 
+
+					var viafDupe = true, viafDupeCheck = 0, threshold = 0.1
 					var ogNewNames = JSON.parse(JSON.stringify(newNames))
-					var hasDupe = true, threshold = 0.1, dupeCheckCount = 0
 
-					while (hasDupe === true && dupeCheckCount < 11){
+					//this first loop makes sure we did not reuse the same VIAF id in two agents, if so try it all again with a higher intail threshold
+					while (viafDupe === true && viafDupeCheck < 11){
+						
+						var hasDupe = true, dupeCheckCount = 0
 
-						threshold = threshold + 0.1
-						dupeCheckCount++
-						hasDupe=false
+						//this second loop does the matching withing the agents to try to assign the best Viaf name to local name, it too checks for dupes at the per record scale 
+						while (hasDupe === true && dupeCheckCount < 11){
 
-
-						newNames = JSON.parse(JSON.stringify(ogNewNames))
-
-						//now try to match anything left with the viaf entries
-						newNames.map(function(n){
-							if (!n.viafId){			
-
-								var bestMatch = false, bestScore = -100;				
-								for (var x in viafNameLookup){
-
-									//all we really care about is if this possibly local name is represented somehow in the 
-									//data from world cat or classify
-									
-									var scoreLc = 0, scoreViaf = 0, scoreViafAlt = 0
-
-									if (viafNameLookup[x].nameLc) scoreLc = n.name.score(viafNameLookup[x].nameLc,0.5)
-									if (viafNameLookup[x].nameViaf) scoreViaf = n.name.score(viafNameLookup[x].nameViaf,0.5)
-									if (viafNameLookup[x].nameViafAlt) scoreViafAlt = n.name.score(viafNameLookup[x].nameViafAlt,0.5)
-
-									if ( scoreLc > threshold || scoreViaf > threshold || scoreViafAlt > threshold){		
+							threshold = threshold + 0.1
+							dupeCheckCount++
+							hasDupe=false
 
 
-										var newScore = (scoreLc >= scoreViaf) ? scoreLc : scoreViaf
-										if (scoreViafAlt > newScore) newScore = scoreViafAlt
+							newNames = JSON.parse(JSON.stringify(ogNewNames))
+
+							//now try to match anything left with the viaf entries
+							newNames.map(function(n){
+								if (!n.viafId){			
+
+									var bestMatch = false, bestScore = -100;				
+									for (var x in viafNameLookup){
+
+										//all we really care about is if this possibly local name is represented somehow in the 
+										//data from world cat or classify
+										
+										var scoreLc = 0, scoreViaf = 0, scoreViafAlt = 0
+
+										if (viafNameLookup[x].nameLc) scoreLc = n.name.score(viafNameLookup[x].nameLc,0.5)
+										if (viafNameLookup[x].nameViaf) scoreViaf = n.name.score(viafNameLookup[x].nameViaf,0.5)
+										if (viafNameLookup[x].nameViafAlt) scoreViafAlt = n.name.score(viafNameLookup[x].nameViafAlt,0.5)
+
+										if ( scoreLc > threshold || scoreViaf > threshold || scoreViafAlt > threshold){		
+
+
+											var newScore = (scoreLc >= scoreViaf) ? scoreLc : scoreViaf
+											if (scoreViafAlt > newScore) newScore = scoreViafAlt
 
 
 
-										//console.log(n.name, " | ", viafNameLookup[x].nameLc, " > ",scoreLc)
-										if (newScore>bestScore) bestMatch = x
-									}
-								}
-
-								if (bestMatch){
-									for (var y in newNames){
-										if (newNames[y].name==n.name){
-											newNames[y].matchedViaf = parseInt(bestMatch)
-
-											//console.log('---------',bib._id)
-											//console.log(newNames[y].name, " === ", viafNameLookup[bestMatch],bestScore)	
-
-										}								
-																				
+											//console.log(n.name, " | ", viafNameLookup[x].nameLc, " > ",scoreLc)
+											if (newScore>bestScore) bestMatch = x
+										}
 									}
 
+									if (bestMatch){
+										for (var y in newNames){
+											if (newNames[y].name==n.name){
+												newNames[y].matchedViaf = parseInt(bestMatch)
+
+												//console.log('---------',bib._id)
+												//console.log(newNames[y].name, " === ", viafNameLookup[bestMatch],bestScore)	
+
+											}								
+																					
+										}
+
+									}
+
+
+
 								}
 
 
+							})
 
+							var dupeCheck = {}
+
+							newNames.map(function(n){					
+
+								if (n.matchedViaf){
+									if (dupeCheck[n.matchedViaf+n.relator.toString()]){
+										hasDupe=true
+									}else{
+										dupeCheck[n.matchedViaf+n.relator.toString()] = true
+									}
+								}
+							})
+
+						}
+
+
+						var dupeCheckViaf = {}
+
+						newNames.map(function(n){					
+
+							if (n.viafId){
+								if (!dupeCheckViaf[n.viafId]) dupeCheckViaf[n.viafId] = 0	
+								dupeCheckViaf[n.viafId]++						
 							}
-
-
-						})
-
-						var dupeCheck = {}
-
-						newNames.map(function(n){
-
 							if (n.matchedViaf){
-								if (dupeCheck[n.matchedViaf+n.relator.toString()]){
-									hasDupe=true
-								}else{
-									dupeCheck[n.matchedViaf+n.relator.toString()] = true
-								}
+								if (!dupeCheckViaf[n.matchedViaf]) dupeCheckViaf[n.matchedViaf] = 0	
+								dupeCheckViaf[n.matchedViaf]++						
 							}
+			
 						})
 
-					}		
+						//console.log("dupeCheckViaf",dupeCheckViaf)
+
+						viafDupe = false
+						viafDupeCheck++
+
+						for (var i in dupeCheckViaf){
+							if (dupeCheckViaf[i]>1){
+								viafDupe=true
+								threshold=threshold+0.5
+								//console.log("HAS DUPE VIAF, increading threshold!",threshold)
+							}
+						}		
+
+
+					}
 	
 
 					if (hasDupe){
 						console.log("\n\nRecord still contains dupes:",bib._id,"\n\n")
 					}
-
 
 
 
@@ -399,6 +458,8 @@ db.returnViafLookup(function(err,viafLookup){
 			  			if (n.matchedViaf) if (empolyedViaf.indexOf(parseInt(n.matchedViaf)) == -1) empolyedViaf.push(parseInt(n.matchedViaf))
 			  		})
 			  		var unusedViaf = []
+
+			  		//console.log("unusedViaf",unusedViaf)
 
 			  		viafIds.map(function(n){
 			  			if (empolyedViaf.indexOf(n)==-1) unusedViaf.push(n)
@@ -422,9 +483,6 @@ db.returnViafLookup(function(err,viafLookup){
 
 				  		if (newNames.length == 1 && unusedViaf.length == 1){
 
-
-
-
 				  			for (var y in newNames){
 				  				if (!newNames[y].matchedViaf && !newNames[y].viafId){
 				  					newNames[y].matchedViaf = unusedViaf[0]
@@ -445,8 +503,16 @@ db.returnViafLookup(function(err,viafLookup){
 			   		
 
 
+
+
+
 			   		//at this point everything that we can map is mapped, build the final agents field
 			   		var agents = []
+
+					
+
+
+			   		//console.log("newNames:",newNames)
 
 			   		newNames.map(function(n){
 
