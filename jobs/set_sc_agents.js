@@ -13,6 +13,10 @@ var counter = 0
 var namePartSubcode = ['a','b','c','d','q','n']
 var checkFields = ['100','110','111','700','710','711','600','610','611']
 
+var checkFieldsPersonal = ['100','700','600']
+var checkFieldsCorporate = ['110','710','610']
+var checkFieldsMeeting = ['111','711','611']
+
 var countFoundInLC = 0
 var countFoundInViafViaOclc = 0
 var countLocal = 0
@@ -41,6 +45,23 @@ setInterval(function(){
 
 },30000)
 
+
+var qualityControl = function(agents){
+
+	var returnAgents = []
+
+
+
+
+
+
+
+
+
+}
+
+
+
 db.returnViafLookup(function(err,viafLookup){
 
 
@@ -53,18 +74,11 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 		if (!bib){
-
 			console.log("\n\nFinshed!\n\n")
 			setTimeout(function(){
-
-
 				process.exit()
 			},1000)
-
-
 			return
-
-
 		}
 
 		counter++
@@ -89,7 +103,13 @@ db.returnViafLookup(function(err,viafLookup){
 				if (field.marcTag){
 					if (checkFields.indexOf(field.marcTag) > -1){
 
-						var name = "", relator = false
+						var name = "", relator = false, type = false
+
+						if (checkFieldsPersonal.indexOf(field.marcTag) > -1) type = "personal"
+						if (checkFieldsCorporate.indexOf(field.marcTag) > -1) type = "corporate"
+						if (checkFieldsMeeting.indexOf(field.marcTag) > -1) type = "meeting"
+
+
 
 						if (field.subfields){
 
@@ -124,9 +144,9 @@ db.returnViafLookup(function(err,viafLookup){
 
 						if (name != ""){
 							if (field.marcTag != '600' && field.marcTag != '610' && field.marcTag != '611'){
-								names.push( { name: name, relator:relator, contributor : true } )
+								names.push( { name: name, relator:relator, contributor : true, type: type } )
 							}else{
-								names.push( { name: name, relator:relator, contributor : false } )
+								names.push( { name: name, relator:relator, contributor : false, type: type } )
 
 
 							}
@@ -207,7 +227,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 		   	var checkOclc = false
-		   	newNames.map(function(name){if (!name.viafId) checkOclc = true})
+		   	newNames.forEach(function(name){if (!name.viafId) checkOclc = true})
 
 		   //	console.log("checkOclc:",checkOclc)
 		   //	console.log("newNames:",newNames)
@@ -221,15 +241,15 @@ db.returnViafLookup(function(err,viafLookup){
 		   		var viafIds = [], viafNameLookup = {}
 
 		   		if (bib['classify:creatorVIAF']){
-		   			bib['classify:creatorVIAF'].map(function(v){ if (viafIds.indexOf(v)==-1){ viafIds.push(v); if (!viafNameLookup[v]) viafNameLookup[v] = { nameLc: "", nameViaf: "", contributor: true } }  })
+		   			bib['classify:creatorVIAF'].forEach(function(v){ if (viafIds.indexOf(v)==-1){ viafIds.push(v); if (!viafNameLookup[v]) viafNameLookup[v] = { nameLc: "", nameViaf: "", contributor: true } }  })
 		   		}
 
 		   		if (bib['wc:contributor']){
-		   			bib['wc:contributor'].map(
+		   			bib['wc:contributor'].forEach(
 		   				function(v){ 
 
 			   				if (viafIds.indexOf(v.id)==-1){
-			   					viafIds.push(v.id)		   					
+			   					viafIds.push(v.id)
 			   					if (!viafNameLookup[v.id])
 			   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: true }
 			   				}
@@ -241,11 +261,11 @@ db.returnViafLookup(function(err,viafLookup){
 
 		   		if (bib['wc:creator']){
 
-		   			bib['wc:creator'].map(
+		   			bib['wc:creator'].forEach(
 		   				function(v){ 
 		   					
 			   				if (viafIds.indexOf(v.id)==-1){
-			   					viafIds.push(v.id)		   					
+			   					viafIds.push(v.id)
 			   					if (!viafNameLookup[v.id])
 			   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: true  }
 			   				}
@@ -258,7 +278,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 		   		if (bib['wc:aboutViaf']){
 
-		   			bib['wc:aboutViaf'].map(
+		   			bib['wc:aboutViaf'].forEach(
 		   				function(v){ 
 		   					
 			   				if (viafIds.indexOf(v.id)==-1){
@@ -313,12 +333,12 @@ db.returnViafLookup(function(err,viafLookup){
 
 					//console.log("viafAry:",viafAry)
 
-					viafAry.map(function(v){
+					viafAry.forEach(function(v){
 						if (viafNameLookup[v._id]) viafNameLookup[v._id].nameLc = v.prefLabel
 					})
 
 					//remove any matches we know of already
-					// newNames.map(function(n){
+					// newNames.forEach(function(n){
 					// 	if (n.viafId){
 					// 		delete viafLookup[n.viafId]
 					// 	}
@@ -347,7 +367,7 @@ db.returnViafLookup(function(err,viafLookup){
 							newNames = JSON.parse(JSON.stringify(ogNewNames))
 
 							//now try to match anything left with the viaf entries
-							newNames.map(function(n){
+							newNames.forEach(function(n){
 								if (!n.viafId){			
 
 									var bestMatch = false, bestScore = -100;				
@@ -398,7 +418,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 							var dupeCheck = {}
 
-							newNames.map(function(n){					
+							newNames.forEach(function(n){					
 
 								if (n.matchedViaf){
 									if (dupeCheck[n.matchedViaf+n.relator.toString()]){
@@ -414,7 +434,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 						var dupeCheckViaf = {}
 
-						newNames.map(function(n){					
+						newNames.forEach(function(n){					
 
 							if (n.viafId){
 								if (!dupeCheckViaf[n.viafId]) dupeCheckViaf[n.viafId] = 0	
@@ -453,7 +473,7 @@ db.returnViafLookup(function(err,viafLookup){
 			  		//lets make a list of all the viaf that we did find
 			  		var empolyedViaf = []
 
-			  		newNames.map(function(n){
+			  		newNames.forEach(function(n){
 			  			if (n.viafId) if (empolyedViaf.indexOf(parseInt(n.viafId)) == -1) empolyedViaf.push(parseInt(n.viafId))
 			  			if (n.matchedViaf) if (empolyedViaf.indexOf(parseInt(n.matchedViaf)) == -1) empolyedViaf.push(parseInt(n.matchedViaf))
 			  		})
@@ -461,7 +481,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 			  		//console.log("unusedViaf",unusedViaf)
 
-			  		viafIds.map(function(n){
+			  		viafIds.forEach(function(n){
 			  			if (empolyedViaf.indexOf(n)==-1) unusedViaf.push(n)
 			  		})
 
@@ -470,13 +490,13 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 			  			//console.log("Did not match local to anything:")
-			  			// newNames.map(function(n){
+			  			// newNames.forEach(function(n){
 			  			// 	if (!n.viafId && !n.matchedViaf) console.log("\t",n.name)
 			  			// })
 
 			  			// //console.log("Did not find local name for viaf:")
 
-			  			// unusedViaf.map(function(n){
+			  			// unusedViaf.forEach(function(n){
 			  			// 	console.log("\t",n,viafNameLookup[n])
 			  			// })
 
@@ -514,12 +534,13 @@ db.returnViafLookup(function(err,viafLookup){
 
 			   		//console.log("newNames:",newNames)
 
-			   		newNames.map(function(n){
+			   		newNames.forEach(function(n){
 
 			   			var a = {}
 
 			   			a.nameLocal = n.name
 			   			a.relator = n.relator
+			   			a.type = n.type
 			   			a.contributor = n.contributor
 
 			   			if (n.relator){
@@ -568,7 +589,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 			   		//now we need to take care of any un matched viaf results
-			   		unusedViaf.map(function(v){
+			   		unusedViaf.forEach(function(v){
 
 			   			if (viafNameLookup[v]){
 			   				n = viafNameLookup[v]
@@ -579,6 +600,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 				   			a.nameLocal = false
 				   			a.relator = false
+				   			a.type = false
 				   			a.contributor = n.contributor
 			   				a.nameLc = n.nameLc
 			   				a.nameViaf = n.nameViaf
@@ -597,12 +619,13 @@ db.returnViafLookup(function(err,viafLookup){
 
 			   		})
 
+			   		console.log(agents)
+
+
 			   		var update = {
 			   			id : bib._id,
 			   			'sc:agents' : agents
 			   		}
-
-
 
 			   		db.updateBibRecord(update,function(){
 
@@ -631,7 +654,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 		   		var agents = []
 
-		   		newNames.map(function(n){
+		   		newNames.forEach(function(n){
 
 		   			countTotalNames++
 
@@ -639,6 +662,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 		   			a.nameLocal = n.name
 		   			a.relator = n.relator
+		   			a.type = n.type
 		   			a.contributor = n.contributor
 
 		   			if (n.relator){
@@ -669,6 +693,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 		   		})
+
 
 
 
