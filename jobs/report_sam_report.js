@@ -51,6 +51,7 @@ var counter = 0
 
 
 var report = {}
+var domainReport = {}
 
 db.allBibsReverse(function(bib,cursor,mongoConnection){
 
@@ -101,7 +102,47 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 				bib.varFields.forEach(function(v){
 					if (v.marcTag==='856'){
-						console.log(v)
+						
+						v.subfields.forEach(function(s){
+
+							if (s.tag){
+								if (s.tag==='u'){
+
+									var url = s.content
+
+
+
+
+									var domain = url.replace(/http:\/\//,'').split('/')
+
+									if (domain[0]){
+
+										if (!domainReport[b]){
+											domainReport[b] = {}
+										}
+										if (!domainReport[b][m]){
+											domainReport[b][m] = {}
+										}
+
+										if (!domainReport[b][m][domain[0]]){
+											domainReport[b][m][domain[0]] = 0
+										}
+
+										domainReport[b][m][domain[0]]++
+
+
+									}
+
+									console.log(domainReport)
+
+
+								}
+							}
+
+
+						})
+
+
 					}
 
 				})
@@ -137,7 +178,7 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 	}else{
 		cursor.resume()
 		return
-		
+
 	}
 
 	
