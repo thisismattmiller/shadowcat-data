@@ -134,6 +134,10 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 		}
 
 
+	}else{
+		cursor.resume()
+		return
+		
 	}
 
 	
