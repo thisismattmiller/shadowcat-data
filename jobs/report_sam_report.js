@@ -52,6 +52,18 @@ var counter = 0
 
 var report = {}
 var domainReport = {}
+var pdReport = {}
+
+
+
+setInterval(function(){
+
+	console.log(report)
+	console.log(domainReport)
+	console.log(pdReport)
+
+
+},10000)
 
 db.allBibsReverse(function(bib,cursor,mongoConnection){
 
@@ -61,7 +73,8 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 
 		console.log("DONE!")
-		console.log(report)
+		console.log(domainReport)
+		console.log(pdReport)
 		console.log("\n")
 
 
@@ -117,6 +130,9 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 									if (domain[0]){
 
+
+										if (domain[0].search(/search\.serialssolutions\.com/) > -1) domain[0] = "search.serialssolutions.com"
+
 										if (!domainReport[b]){
 											domainReport[b] = {}
 										}
@@ -133,7 +149,6 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 									}
 
-									console.log(domainReport)
 
 
 								}
@@ -147,6 +162,33 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 				})
 
+				var year = bib.publishYear
+				if (bib['sc:publishYear']) year = bib['sc:publishYear']
+				
+
+				var year = parseInt(year)
+
+				if (!isNaN(year)){
+
+					var pd = 'pre1923'
+
+					if (year>1923) pd = 'post1923'
+
+					if (!pdReport[b]){
+						pdReport[b] = {}
+					}
+					if (!pdReport[b][m]){
+						pdReport[b][m] = {}
+					}
+
+					if (!pdReport[b][m][pd]){
+						pdReport[b][m][pd] = 0
+					}					
+
+					pdReport[b][m][pd]++
+
+
+				}
 
 
 
