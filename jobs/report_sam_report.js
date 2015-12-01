@@ -2,6 +2,7 @@
 
 var db = require("../lib/db.js")
 var util = require("../lib/util.js")
+var fs = require("fs")
 
 var counter = 0
 
@@ -58,9 +59,22 @@ var pdReport = {}
 
 setInterval(function(){
 
-	console.log(report)
-	console.log(domainReport)
-	console.log(pdReport)
+	var r = {
+
+		counts: report,
+		domains: domainReport,
+		pd: pdReport
+	}
+
+	
+	
+
+	fs.writeFile("log/sam_report.json",JSON.stringify(r,null,4)+"\n", function (err) {
+
+		console.log(r)
+
+
+	})
 
 
 },10000)
@@ -76,6 +90,20 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 		console.log(domainReport)
 		console.log(pdReport)
 		console.log("\n")
+
+		var r = {
+			counts: report,
+			domains: domainReport,
+			pd: pdReport
+		}		
+
+		fs.writeFile("log/sam_report.json",JSON.stringify(r,null,4)+"\n", function (err) {
+			console.log(r)
+		})
+
+
+
+
 
 
 	}
