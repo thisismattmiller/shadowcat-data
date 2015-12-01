@@ -100,7 +100,6 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 				}
 
 				bib.varFields.forEach(function(v){
-					console.log(v)
 					if (v.marcTag==='856'){
 						console.log(v)
 					}
