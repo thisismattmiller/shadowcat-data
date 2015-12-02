@@ -53,6 +53,8 @@ var counter = 0
 
 var report = {}
 var domainReport = {}
+var domainReportExamples = {}
+
 var pdReport = {}
 
 
@@ -62,8 +64,9 @@ setInterval(function(){
 	var r = {
 
 		counts: report,
+		pd: pdReport,
 		domains: domainReport,
-		pd: pdReport
+		domainReportExamples: domainReportExamples
 	}
 
 	
@@ -71,7 +74,7 @@ setInterval(function(){
 
 	fs.writeFile("log/sam_report.json",JSON.stringify(r,null,4)+"\n", function (err) {
 
-		console.log(r)
+		console.log(JSON.stringify(r))
 
 
 	})
@@ -79,7 +82,7 @@ setInterval(function(){
 
 },10000)
 
-db.allBibsReverse(function(bib,cursor,mongoConnection){
+db.allBibs(function(bib,cursor,mongoConnection){
 
 
 
@@ -87,15 +90,15 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 
 		console.log("DONE!")
-		console.log(domainReport)
-		console.log(pdReport)
 		console.log("\n")
 
 		var r = {
 			counts: report,
+			pd: pdReport,
 			domains: domainReport,
-			pd: pdReport
-		}		
+			domainReportExamples: domainReportExamples
+		}
+	
 
 		fs.writeFile("log/sam_report.json",JSON.stringify(r,null,4)+"\n", function (err) {
 			console.log(r)
@@ -154,12 +157,21 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 
 
-									var domain = url.replace(/http:\/\//,'').split('/')
+									var domain = url.replace(/http:\/\//,'')
+									domain = domain.replace(/https:\/\//,'')
+									domain = domain.replace(/ftp:\/\//,'')
+									domain = domain.trim().split('/')
+
+
+
+									
 
 									if (domain[0]){
 
 
 										if (domain[0].search(/search\.serialssolutions\.com/) > -1) domain[0] = "search.serialssolutions.com"
+
+										if (domain[0].search(/\.jpg/) > -1) domain[0] = "JPG Image"
 
 										if (!domainReport[b]){
 											domainReport[b] = {}
@@ -173,6 +185,21 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 										}
 
 										domainReport[b][m][domain[0]]++
+
+										if (!domainReportExamples[b]){
+											domainReportExamples[b] = {}
+										}
+										if (!domainReportExamples[b][m]){
+											domainReportExamples[b][m] = {}
+										}
+
+										if (!domainReportExamples[b][m][domain[0]]){
+											domainReportExamples[b][m][domain[0]] = []
+										}
+
+										if (domainReportExamples[b][m][domain[0]].length<6) domainReportExamples[b][m][domain[0]].push("http://catalog.nypl.org/record=b" + bib._id)
+										
+
 
 
 									}
@@ -224,13 +251,13 @@ db.allBibsReverse(function(bib,cursor,mongoConnection){
 
 
 
-				db.returnItemByBibIds(bib.id,function(err,items){
+				db.returnItemCount(bib.id,function(err,count){
 
 					report[b][m].bibCount++
-					report[b][m].itemCount=report[b][m].itemCount + items.length
+					report[b][m].itemCount=report[b][m].itemCount + count
 					cursor.resume()
 					return
-				})
+				},mongoConnection)
 
 
 			}else{
