@@ -72,7 +72,7 @@ setInterval(function(){
 	
 	
 
-	fs.writeFile("log/sam_report.json",JSON.stringify(r,null,4)+"\n", function (err) {
+	fs.writeFile("log/sam_report_interval.json",JSON.stringify(r,null,4)+"\n", function (err) {
 
 		console.log(JSON.stringify(r))
 
@@ -106,7 +106,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 
-
+		return true
 
 
 	}
