@@ -46,24 +46,44 @@ setInterval(function(){
 },30000)
 
 
+
+//a small double check at the end of the process to filter out any obvious problems like dupes
 var qualityControl = function(agents){
 
-	var returnAgents = []
+	var returnAgentsNameCheck = [],returnAgentsViafCheck = [], addedNamesRoleCombo = [], addedViafRoleCombo = []
 
 
+	agents.forEach(function(n){
+		if (n.nameLocal){
+			var comboName = n.nameLocal + n.contributor.toString()
+			if (addedNamesRoleCombo.indexOf(comboName) == -1){
+				addedNamesRoleCombo.push(comboName)
+				returnAgentsNameCheck.push(n)
+			}		
+		}else{
+			returnAgentsNameCheck.push(n)
+		}
 
+	})
 
+	returnAgentsNameCheck.forEach(function(n){
+		if (n.nameLocal){
+			var comboViaf = n.viaf + n.contributor.toString()
+			if (addedViafRoleCombo.indexOf(comboViaf) == -1){
+				addedViafRoleCombo.push(comboViaf)
+				returnAgentsViafCheck.push(n)
+			}	
+		}else{
+			returnAgentsViafCheck.push(n)
+		}
+	})
 
-
-
-
-
+	return returnAgentsViafCheck
 }
 
 
 
-db.returnViafLookup(function(err,viafLookup){
-
+db.returnViafLookup(function(err,viaf){
 
 
 	db.allBibs(function(bib,cursor,mongoConnection){
@@ -84,13 +104,11 @@ db.returnViafLookup(function(err,viafLookup){
 		counter++
 
 		var names = []
-
 			
 		
 		//build all the agents
 
 		if (bib.varFields){
-
 
 
 			for (var field in bib.varFields){
@@ -129,14 +147,9 @@ db.returnViafLookup(function(err,viafLookup){
 											relator = subfield.content
 										}
 									}
-								}
-
-								
-
-
+								}				
 
 							}
-
 
 						}
 
@@ -173,10 +186,6 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 
-
-
-
-
 		var newNames = []
 
 		//console.log("names:",names)
@@ -188,41 +197,59 @@ db.returnViafLookup(function(err,viafLookup){
 
 			var normal = util.normalizeAndDiacritics(name.name)
 
+			//something to experiment with obviously bad names
+			// if (normal.length<5){
+			// 	console.log(normal)
+			// 	console.log(name)
+			// 	console.log(bib._id)
+			// }
 
 
-
-			viafLookup.find({ $or :[ {normalized : normal}, {normalized : normal+' '} ]}).toArray(function(err, viafAry) {
+			viaf.find({normalized : normal, hasLc: true}).toArray(function(err, viafAry) {
 
 				if (viafAry.length>0){
 
-					// console.log(name.name,bib._id)
-					// console.log(viafAry[0])
-
-					name.viafName = viafAry[0].prefLabel
+					//console.log(name.name,bib._id)
+					//console.log(viafAry[0])
+					name.viafName = viafAry[0].viafTerm
 					name.viafId = viafAry[0]._id
+
+					newNames.push(name)
+					eachCallback()	
 
 
 				}else if (viafAry.length==0){
 
-					//console.log("No match ------ ",bib._id)
-					//console.log(name)					
-					name.viafId = false
+					//check GERMANY!!!
+					viaf.find({normalized : normal, hasDbn: true}).toArray(function(err, viafAry) {
 
 
+						if (viafAry.length>0){
 
+							// console.log("FOUND IN GERMANY!")
+							// console.log(name.name,bib._id)
+							// console.log(viafAry[0])
+							name.viafName = viafAry[0].viafTerm
+							name.viafId = viafAry[0]._id
+						}else{
 
+							//console.log("No match ------ ",normal,bib._id)
+							//console.log(name)					
+							name.viafId = false
+						}
+
+						newNames.push(name)
+						eachCallback()	
+
+					})
 				}
-
-
-				newNames.push(name)
-				eachCallback()	
-
 			})
 		
 
 		//fires when all the lookups are done		
 
 		}, function(err){
+
 		   	if (err) console.log(err)
 
 
@@ -230,7 +257,7 @@ db.returnViafLookup(function(err,viafLookup){
 		   	newNames.forEach(function(name){if (!name.viafId) checkOclc = true})
 
 		   //	console.log("checkOclc:",checkOclc)
-		   //	console.log("newNames:",newNames)
+		   	//console.log("newNames:",newNames)
 
 		   	if (checkOclc){
 
@@ -295,47 +322,55 @@ db.returnViafLookup(function(err,viafLookup){
 		   				})
 		   		}
 
-
-		   		//create a jank alt name from any viaf natural lanuage one
-
-
-		   		for (var x in viafNameLookup){
-
-		   			if (viafNameLookup[x].nameViaf){
-
-		   				var parts = human.parseName(viafNameLookup[x].nameViaf);
-
-		   				if (parts.firstName && parts.lastName){
-
-		   					viafNameLookup[x].nameViafAlt = ""
-		   					viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + parts.lastName 
-		   					if (parts.suffix) viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + " " + parts.suffix
-
-		   					viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + ", " + parts.firstName + " "
-		   					if (parts.middleName) viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + " " + parts.middleName
-		   					viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt.trim()
+		   		//if there were any IDS that we matched vis LC/DNB Exact Match
+		   		newNames.forEach(function(name){
+		   			if (name.viafId) {
+		   				if (viafIds.indexOf(name.viafId)==-1){
+		   					viafIds.push(name.viafId)
+		   					viafNameLookup[name.viafId] = { nameLc: "", nameViaf: "", contributor: name.contributor }
 		   				}
-		   				
-
-		   			}
-
-		   		}
-
-
-
+		   			}	
+		   		})
 
 		   		//now grab the possible records for all these viafs
 
-
-				viafLookup.find({ _id : {$in : viafIds } }).toArray(function(err, viafAry) {
+				viaf.find({ _id : {$in : viafIds } }).toArray(function(err, viafAry) {
 
 					//loop through and fill out any data
 
 					//console.log("viafAry:",viafAry)
 
+					//we have the real labels from our local VIAF instance
 					viafAry.forEach(function(v){
-						if (viafNameLookup[v._id]) viafNameLookup[v._id].nameLc = v.prefLabel
+						if (viafNameLookup[v._id]){
+							viafNameLookup[v._id].nameLc = v.lcTerm
+							viafNameLookup[v._id].nameViaf = v.viafTerm
+						}
 					})
+
+			   		//create a jank alt name from any viaf natural lanuage one to try to also match on below
+			   		for (var x in viafNameLookup){
+
+			   			if (viafNameLookup[x].nameViaf){
+
+			   				var parts = human.parseName(viafNameLookup[x].nameViaf);
+
+			   				if (parts.firstName && parts.lastName){
+
+			   					viafNameLookup[x].nameViafAlt = ""
+			   					viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + parts.lastName 
+			   					if (parts.suffix) viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + " " + parts.suffix
+
+			   					viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + ", " + parts.firstName + " "
+			   					if (parts.middleName) viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt + " " + parts.middleName
+			   					viafNameLookup[x].nameViafAlt = viafNameLookup[x].nameViafAlt.trim()
+			   				}
+			   				
+
+			   			}
+
+			   		}
+
 
 					//remove any matches we know of already
 					// newNames.forEach(function(n){
@@ -489,23 +524,30 @@ db.returnViafLookup(function(err,viafLookup){
 
 
 
-			  			//console.log("Did not match local to anything:")
+			  			// console.log("Did not match local to anything:")
 			  			// newNames.forEach(function(n){
 			  			// 	if (!n.viafId && !n.matchedViaf) console.log("\t",n.name)
 			  			// })
 
-			  			// //console.log("Did not find local name for viaf:")
+			  			// console.log("Did not find local name for viaf:",bib._id,"\n")
 
 			  			// unusedViaf.forEach(function(n){
 			  			// 	console.log("\t",n,viafNameLookup[n])
 			  			// })
+
+			  			// console.log(newNames)
+
+			  			// console.log("==============")
+
 
 
 				  		if (newNames.length == 1 && unusedViaf.length == 1){
 
 				  			for (var y in newNames){
 				  				if (!newNames[y].matchedViaf && !newNames[y].viafId){
+				  					//console.log("Mapping",newNames[y],"to",unusedViaf)
 				  					newNames[y].matchedViaf = unusedViaf[0]
+
 				  					unusedViaf = []
 				  				}
 				  			}
@@ -521,8 +563,6 @@ db.returnViafLookup(function(err,viafLookup){
 			  //  		console.log(viafNameLookup)
 			  //  		console.log(unusedViaf)
 			   		
-
-
 
 
 
@@ -619,8 +659,12 @@ db.returnViafLookup(function(err,viafLookup){
 
 			   		})
 
-			   		console.log(agents)
 
+
+			   		agents = qualityControl(agents)
+
+			   		// console.log(bib._id)
+			   		// console.log(agents)
 
 			   		var update = {
 			   			id : bib._id,
@@ -652,7 +696,7 @@ db.returnViafLookup(function(err,viafLookup){
 
 		   		
 
-		   		var agents = []
+		   		var agents = [], viafIds = []
 
 		   		newNames.forEach(function(n){
 
@@ -676,6 +720,8 @@ db.returnViafLookup(function(err,viafLookup){
 		   			//did we match it to viaf ourselves?
 		   			if (n.viafId){
 
+		   				viafIds.push(n.viafId)
+
 		   				//yes
 		   				a.nameLc = n.viafName
 		   				a.nameViaf = false
@@ -695,26 +741,48 @@ db.returnViafLookup(function(err,viafLookup){
 		   		})
 
 
+		   		//we are relaying on the labels to be correct comming from worldcat/classify, lets double check them agains our local viaf
+		   		viaf.find({ _id : {$in : viafIds } }).toArray(function(err, viafAry) {
+
+		   			viafAry.forEach(function(v){
+
+		   				for (var a in agents){
+							if (agents[a].viaf==v._id){
+								agents[a].nameLc = v.lcTerm
+		   						agents[a].nameViaf = v.viafTerm
+		   					}
+		   				}
+		   			})
 
 
-		   		//console.log('\n\n\n---------',bib._id,bib['sc:oclc'],bib['classify:oclc'],bib['lc:oclc'])
 
-		   		//console.log(agents)
+					//console.log('\n\n\n---------',bib._id,bib['sc:oclc'],bib['classify:oclc'],bib['lc:oclc'])
 
+					//console.log(agents)
 
-		   		var update = {
-		   			id : bib._id,
-		   			'sc:agents' : agents
-		   		}
-
-
-
-		   		db.updateBibRecord(update,function(){
-
-		   			cursor.resume()
+					agents = qualityControl(agents)
+					// console.log("\n")
+					// console.log(bib._id)
+					// console.log(agents)
 
 
-		   		},mongoConnection)
+
+					var update = {
+						id : bib._id,
+						'sc:agents' : agents
+					}
+
+
+
+					db.updateBibRecord(update,function(){
+						cursor.resume()
+					},mongoConnection)
+
+
+		   		})
+
+
+
 
 
 		   	}
