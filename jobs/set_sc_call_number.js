@@ -2,6 +2,7 @@
 
 var db = require("../lib/db.js")
 var util = require("../lib/util.js")
+var _ = require('lodash')
 
 var counter = 0
 
@@ -24,7 +25,7 @@ var extract852 = function(obj){
 			}
 			/*
 			$h - Classification part (NR)  x
-			$i - Item part (R) 
+			$i - Item part (R)
 			$k - Call number prefix (R)  x
 
 			$m - Call number suffix (R)  x
@@ -72,7 +73,7 @@ var extract852 = function(obj){
 
 
 
-			
+
 
 
 			}
@@ -83,11 +84,41 @@ var extract852 = function(obj){
 		}
 	}
 
-	
+
 	return results
-	
+
 }
 
+// sometimes items are only listed in the 590 field
+// (see http://catalog.nypl.org/record=b12117171 )
+// this pulls them out by looking for a classmark regex
+// I think this only applies to LPA stuff...but we'll see
+var extract590 = function(obj)
+{
+	var results = []
+
+	if(obj.marcTag)
+	{
+		if(obj.marcTag == 590)
+		{
+			if(obj.subfields)
+			{
+				for(var x in obj.subfields)
+				{
+					var content = obj.subfields[x].content
+
+					// regex looks for classmarks starting with *
+					// which (hopefully) encompasses everything in LPA
+					var classmarkregex = /\*[A-Z0-9\-\s]+/
+
+					results.push(content.match(classmarkregex)[0])
+				}
+			}
+		}
+	}
+
+	return results
+}
 
 //some early messed up records that should go into the research pile
 
@@ -105,7 +136,6 @@ var flatten = function(results){
 	return r
 }
 
-
 db.allBibs(function(bib,cursor,mongoConnection){
 
 	process.stdout.clearLine()
@@ -114,17 +144,17 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 	counter++
 
-	var results = flatten(bib.varFields.map(extract852))
+	var results = _.union(flatten(bib.varFields.map(extract852)), flatten(bib.varFields.map(extract590)))
 
 	//console.log(results)
 	//get the same info for each item
 
 	db.returnItemByBibIds(bib.id,function(err,items){
-			
+
 		if (items.length > 0){
 			for (var x in items){
 				results = results.concat(flatten(items[x].varFields.map(extract852)))
-			}		
+			}
 		}
 
 
@@ -142,7 +172,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 		}
-		
+
 
 		if (finalCalls.length==0) finalCalls = false
 
