@@ -114,8 +114,10 @@ var extract590 = function(obj)
 			{
 				for(var x in obj.subfields)
 				{
-					var content = obj.subfields[x].content
-					results.push(content.match(callnumberRegex)[0])
+					var content = obj.subfields[x].content	
+
+					if (content.match(callnumberRegex))
+						results.push(content.match(callnumberRegex)[0])
 				}
 			}
 		}
@@ -191,10 +193,12 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 		f590.forEach(function(cm){
-			cm = cm.match(classmarkOnlyRegex)[0]
-			if (cm){
-				cm = cm.toLowerCase()
-				if (classmarks.indexOf(cm)==-1) classmarks.push(cm)
+			if (cm.match(classmarkOnlyRegex)){
+				cm = cm.match(classmarkOnlyRegex)[0]
+				if (cm){
+					cm = cm.toLowerCase().trim()
+					if (classmarks.indexOf(cm)==-1) classmarks.push(cm)
+				}
 			}
 		})
 
