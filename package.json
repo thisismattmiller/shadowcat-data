@@ -16,7 +16,8 @@
     "ps-node": "0.0.4",
     "request": "2.53.0",
     "simple-node-logger": "^0.92.21",
-    "string_score": "^0.1.22"
+    "string_score": "^0.1.22",
+    "lodash": "^3.10.1"
   },
   "devDependencies": {
     "mocha": "2.2.5",
