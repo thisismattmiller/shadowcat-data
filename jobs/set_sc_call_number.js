@@ -89,6 +89,15 @@ var extract852 = function(obj){
 
 }
 
+// regex looks for classmarks starting with *
+// which (hopefully) encompasses everything in LPA
+var callnumberRegex = /\*[A-Z0-9\-\s]+/
+
+//just the classmark part
+var classmarkOnlyRegex = /\*[A-Z]+/
+
+
+
 // sometimes items are only listed in the 590 field
 // (see http://catalog.nypl.org/record=b12117171 )
 // this pulls them out by looking for a classmark regex
@@ -106,12 +115,7 @@ var extract590 = function(obj)
 				for(var x in obj.subfields)
 				{
 					var content = obj.subfields[x].content
-
-					// regex looks for classmarks starting with *
-					// which (hopefully) encompasses everything in LPA
-					var classmarkregex = /\*[A-Z0-9\-\s]+/
-
-					results.push(content.match(classmarkregex)[0])
+					results.push(content.match(callnumberRegex)[0])
 				}
 			}
 		}
@@ -144,10 +148,19 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 	counter++
 
-	var results = _.union(flatten(bib.varFields.map(extract852)), flatten(bib.varFields.map(extract590)))
 
-	//console.log(results)
-	//get the same info for each item
+
+	if (!bib){
+
+		console.log("Finished!")
+		return true
+
+	}
+
+	var f852 = flatten(bib.varFields.map(extract852))
+	var f590 = flatten(bib.varFields.map(extract590))
+
+	var results = _.union(f852, f590)
 
 	db.returnItemByBibIds(bib.id,function(err,items){
 
@@ -173,21 +186,30 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 		}
 
+		var classmarks = bib["sc:classmark"]
+		if (!classmarks) classmarks = []
+
+
+		f590.forEach(function(cm){
+			cm = cm.match(classmarkOnlyRegex)[0]
+			if (cm){
+				cm = cm.toLowerCase()
+				if (classmarks.indexOf(cm)==-1) classmarks.push(cm)
+			}
+		})
 
 		if (finalCalls.length==0) finalCalls = false
-
-
 			var updateRecord  = {
 				id : bib.id,
-				"sc:callnumber" : finalCalls
+				"sc:callnumber" : finalCalls,
+				"sc:classmark" : classmarks
 			}
 
 			db.updateBibRecord(updateRecord,function(err,r){
 
 				if (err) console.log("ERRROR:",err)
-
-				console.log(updateRecord)
-				console.log(r.result)
+				// console.log(updateRecord)
+				// console.log(r.result)
 				cursor.resume()
 
 			}, mongoConnection)
