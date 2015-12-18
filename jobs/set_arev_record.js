@@ -68,7 +68,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 	//we are resuming the record here
-	cursor.resume()
+	//cursor.resume()
 	//but if are updating it we need to resume in the callback of the update function, cursor.resume() should only be called once
 
 
