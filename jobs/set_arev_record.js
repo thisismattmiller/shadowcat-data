@@ -30,7 +30,8 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 		var updateRecord  = {
 			id : bib.id,
-			"sc:arev" : true
+			"sc:arev" : true,
+			"sc:arevId" : false
 		}
 
 		var m = jsonString.match(arevIdRegex)
@@ -45,7 +46,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 			if (err) console.log("ERRROR:",err)
 			cursor.resume()
 		}, mongoConnection)	
-		
+
 	}else{
 		cursor.resume()
 	}
