@@ -3,8 +3,9 @@
 var db = require("../lib/db.js")
 var util = require("../lib/util.js")
 
-var counter = 0
-var arev = 0
+var counter = 0, arev = 0, arevId = 0, arevSupressed = 0
+
+arevIdRegex = /AREV.*?([0-9]{2,}).*?\n/
 
 db.allBibs(function(bib,cursor,mongoConnection){
 
@@ -19,21 +20,34 @@ db.allBibs(function(bib,cursor,mongoConnection){
 	//pause the so we can work on the current record
 	cursor.pause()
 
+	var jsonString = JSON.stringify(bib,null,2)
 
-	if ( JSON.stringify(bib).search(/AREV\s/) != -1 ){
-		
+	if ( jsonString.search(/AREV\s/) != -1 ){
 
-		console.log(bib._id)
 		arev++
 
-		cursor.resume()
+		if (bib.suppressed) arevSupressed++
+
+		var updateRecord  = {
+			id : bib.id,
+			"sc:arev" : true
+		}
+
+		var m = jsonString.match(arevIdRegex)
+		if (m){
+			arevId++
+			var arevIdVal = parseInt(m[1])
+			updateRecord['sc:arevId'] = arevIdVal
+		}
 
 
-
+		db.updateBibRecord(updateRecord,function(err,r){
+			if (err) console.log("ERRROR:",err)
+			cursor.resume()
+		}, mongoConnection)	
+		
 	}else{
-
 		cursor.resume()
-
 	}
 
 
@@ -43,33 +57,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 	process.stdout.clearLine()
 	process.stdout.cursorTo(0)
-	process.stdout.write( counter + " | " + arev + " | " )
-
-	
-
-
-
-
-
-	// var updateRecord  = {
-	// 	id : bib.id,
-	// 	"whatever field" : "new value"
-	// }
-
-	// db.updateBibRecord(updateRecord,function(err,r){
-
-	// 	if (err) console.log("ERRROR:",err)
-
-	// 	console.log(updateRecord)
-	// 	console.log(r.result)
-	// 	cursor.resume()
-
-	// }, mongoConnection)
-
-
-	//we are resuming the record here
-	//cursor.resume()
-	//but if are updating it we need to resume in the callback of the update function, cursor.resume() should only be called once
+	process.stdout.write( counter + " | arev: " + arev + " | arevId: " + arevId + " | arevSupressed: " + arevSupressed )
 
 
 
