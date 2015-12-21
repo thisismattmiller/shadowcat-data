@@ -55,11 +55,12 @@ var qualityControl = function(agents){
 
 	agents.forEach(function(n){
 		if (n.nameLocal){
-			var comboName = n.nameLocal + n.contributor.toString()
+			var comboName = util.normalizeAndDiacritics(n.nameLocal) + n.contributor.toString()
+
 			if (addedNamesRoleCombo.indexOf(comboName) == -1){
 				addedNamesRoleCombo.push(comboName)
 				returnAgentsNameCheck.push(n)
-			}		
+			}
 		}else{
 			returnAgentsNameCheck.push(n)
 		}
@@ -67,12 +68,12 @@ var qualityControl = function(agents){
 	})
 
 	returnAgentsNameCheck.forEach(function(n){
-		if (n.nameLocal){
+		if (n.viaf){
 			var comboViaf = n.viaf + n.contributor.toString()
 			if (addedViafRoleCombo.indexOf(comboViaf) == -1){
 				addedViafRoleCombo.push(comboViaf)
 				returnAgentsViafCheck.push(n)
-			}	
+			}			
 		}else{
 			returnAgentsViafCheck.push(n)
 		}
@@ -103,17 +104,11 @@ db.returnViafLookup(function(err,viaf){
 
 		counter++
 
-		var names = []
-			
+		var names = []			
 		
 		//build all the agents
-
 		if (bib.varFields){
-
-
 			for (var field in bib.varFields){
-
-
 				field = bib.varFields[field]
 				//100, 110, 111
 				//700, 710, 711
@@ -160,35 +155,55 @@ db.returnViafLookup(function(err,viaf){
 								names.push( { name: name, relator:relator, contributor : true, type: type } )
 							}else{
 								names.push( { name: name, relator:relator, contributor : false, type: type } )
-
-
 							}
 						}
-						 
-
-
-
-
-
-
 					}
+				}
+			}
+		}
 
+		//doing a edge case here where these legacy arev records are all compressed into a single field
+		if (bib['sc:arev'] && names.length==1){
+
+			if (names[0].name.search(/\-\-/)>-1 || names[0].name.search(/I\.\s/)>-1 || names[0].name.search(/1\./)>-1){
+
+				var nameString = names[0].name
+
+				var arevNames = util.arevParseNames(nameString)
+				names = []
+
+				if (arevNames){
+					arevNames.forEach(function(n){
+						names.push({
+							name: n,
+							relator: false,
+							contributor: true,
+							type : 'personal'
+						})
+					})
 				}
 
 
-
-
-
+				//we want to check any names in the subject headings
+				var arevSubjects = util.arevParseSubjects(nameString)
+				arevSubjects = util.arevParseSubjectsDeName(arevSubjects)
+				if (arevSubjects.names){
+					arevSubjects.names.forEach(function(n){
+						names.push({
+							name: n,
+							relator: false,
+							contributor: false,
+							type : 'personal'
+						})
+					})
+				}
 			}
 
-
+			
 		}
 
-
-
 		var newNames = []
-
-		//console.log("names:",names)
+	
 
 		async.each(names, function(name, eachCallback) {
 
@@ -435,8 +450,8 @@ db.returnViafLookup(function(err,viaf){
 											if (newNames[y].name==n.name){
 												newNames[y].matchedViaf = parseInt(bestMatch)
 
-												//console.log('---------',bib._id)
-												//console.log(newNames[y].name, " === ", viafNameLookup[bestMatch],bestScore)	
+												// console.log('---------',bib._id)
+												// console.log(newNames[y].name, " === ", viafNameLookup[bestMatch],bestScore)	
 
 											}								
 																					
@@ -539,21 +554,22 @@ db.returnViafLookup(function(err,viaf){
 
 			  			// console.log("==============")
 
+			  			
+
+				  		// if (newNames.length == 1 && unusedViaf.length == 1){
+
+				  		// 	for (var y in newNames){
+				  		// 		if (!newNames[y].matchedViaf && !newNames[y].viafId){
+				  					
+				  		// 			console.log("Mapping",newNames[y],"to",unusedViaf,viafNameLookup[unusedViaf[0]])
 
 
-				  		if (newNames.length == 1 && unusedViaf.length == 1){
+				  		// 			//newNames[y].matchedViaf = unusedViaf[0]
 
-				  			for (var y in newNames){
-				  				if (!newNames[y].matchedViaf && !newNames[y].viafId){
-				  					//console.log("Mapping",newNames[y],"to",unusedViaf)
-				  					newNames[y].matchedViaf = unusedViaf[0]
-
-				  					unusedViaf = []
-				  				}
-				  			}
-
-				  			
-				  		}
+				  		// 			//unusedViaf = []
+				  		// 		}
+				  		// 	}				  			
+				  		// }
 
 
 				  	}
@@ -634,6 +650,7 @@ db.returnViafLookup(function(err,viaf){
 			   			if (viafNameLookup[v]){
 			   				n = viafNameLookup[v]
 
+
 			   				countTotalNames++
 
 				   			var a = {}
@@ -663,8 +680,9 @@ db.returnViafLookup(function(err,viaf){
 
 			   		agents = qualityControl(agents)
 
-			   		// console.log(bib._id)
-			   		// console.log(agents)
+
+			   		 // console.log(bib._id)
+			   		 // console.log(agents)
 
 			   		var update = {
 			   			id : bib._id,

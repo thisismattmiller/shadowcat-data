@@ -244,6 +244,89 @@ describe('UTIL', function () {
 	})
 
 
+	it('parses a AREV compressed name field', function(){
+
+		var subjectsAndNamesNoNameSubjects = "1. Anesthesia--Drama. 2. Ether--Drama. 3. Consciousness--Drama. 4.Subconsciousness--Drama. 5. Self--Drama. 6. Anesthesiologists--Drama. I.Clachan, Liz. II. Espiner, Tom. III. Espiner, Mark. IV. Jones, Dan. V.Macer-Wright, Simon. VI. Ringham, Hannah. VII. Rosenberg, David. VIII.Taylor, Steve. IX. Shunt (London, England). X. Shunt Vaults, London Bridge(London, England)."
+		var subjectsAndNamesWithSubjectNames = "1. American drama. 2. Chekhov, Anton Pavlovich, 1860-1904--Drama. 3.Stanislavsky, Konstantin, 1863-1938--Drama. 4. Moscow Art Theatre--Drama.5. Theater--Russia--Drama. 6. Friendship--Drama. I. Chain Lightning Theatre(New York, N.Y.). II. American Globe Theatre (New York, N.Y.)."
+		var noSubjectWthTitle = 'I. Avalon, Frankie. II. Izzard, Eddie. III. Jacobs, Jim. Grease (Musical). IV. Flying Karamazov Brothers. V. Cirque Eloize (Montreal, Quebec). VI. Title: Sexie.'
+		var tripleDash = "1. Adventure films. 2. Gann, Ernest Kellogg, 1910---Film and video adaptations. 3. Lobby cards. I. Gable, Clark, 1901-1960. II. Hayward, Susan, 1918-1975. III. Rennie, Michael, 1909-1971. IV. Barry, Gene. V. Tully, Tom, 1896-1982. VI. Sten, Anna, 1908-. VII. D'Arcy, Alex. VIII. Collins, Russell, 1897-1965. IX. Dmytryk, Edward, 1908-. X. Twentieth Century-Fox Film Corporation."
+		var titleName = "1. Drama festivals--New York (State)--Stony Brook. I. Patterson, Howard Jay. II.Williams, Sam. III. Magid, Paul. IV. Furst, Timothy. V. Bowman, Martin. VI.Findlay, Bill. VII. Boyd, Michael. VIII. Gutmacher, Benito. IX. Malamud,Hector. X. Trafic, Carlos. XI. Donnellan, Declan. XII. Ormerod, Nick. XIII.Tremblay, Michel, 1942-. The real warld? XIV. Hughes, Declan. I can't get started. XV. Shakespeare, William, 1564-1616. As you like it. XVI. State University of New York College at Stony Brook. XVII. Staller Center (Stony Brook, N.Y.). XVIII. Flying Karamazov Brothers. XIX. Tron Theatre Company (Glasgow, Scotland). XX. Mapapa Acrobats (Company). XXI. Mandingo. XXII.Rough Magic Theatre Company (Dublin, Ireland). XXIII. Cheek by Jowl (Theater group). XXIV. Tovaritscestvo of Actors and Musicians of Moscow (Russia). Tverboul. XXV. Tovaritscestvo of Actors and Musicians of Moscow (Russia). Tverskoy Boulevard. XXVI. Short Circuit Theatre Company (Argentina). The provocation of Shakespeare."
+
+		var r = util.arevParseNames(subjectsAndNamesNoNameSubjects)
+		r[1].should.equal('Espiner, Tom.')
+
+		var r = util.arevParseNames(noSubjectWthTitle)
+		r.length.should.equal(5)
+		r[2].should.equal('Jacobs, Jim.')
+
+		var r = util.arevParseNames(tripleDash)
+		r.length.should.equal(10)
+		r[4].should.equal('Tully, Tom, 1896-1982.')
+
+		var r = util.arevParseNames(subjectsAndNamesWithSubjectNames)
+		r.length.should.equal(2)
+		r[1].should.equal('American Globe Theatre (New York, N.Y.).')
+		
+		var r = util.arevParseNames("Stanislavsky, Konstantin, 1863-1938")
+		r.should.equal(false)
+
+		var r = util.arevParseNames(tripleDash,true)
+		r.should.equal('1. Adventure films. 2. Gann, Ernest Kellogg, 1910--Film and video adaptations. 3. Lobby cards.')
+
+		var r = util.arevParseNames(noSubjectWthTitle,true)
+		r.should.equal(false)
+
+		var r = util.arevParseNames(titleName)
+		r.length.should.equal(26)
+		r[12].should.equal('Tremblay, Michel, 1942-.')
+
+
+	})
+
+	it('parses a AREV compressed subject heading', function(){
+
+		var subjectsAndNamesNoNameSubjects = "1. Anesthesia--Drama. 2. Ether--Drama. 3. Consciousness--Drama. 4.Subconsciousness--Drama. 5. Self--Drama. 6. Anesthesiologists--Drama. I.Clachan, Liz. II. Espiner, Tom. III. Espiner, Mark. IV. Jones, Dan. V.Macer-Wright, Simon. VI. Ringham, Hannah. VII. Rosenberg, David. VIII.Taylor, Steve. IX. Shunt (London, England). X. Shunt Vaults, London Bridge(London, England)."
+		var subjectsAndNamesWithSubjectNames = "1. American drama. 2. Chekhov, Anton Pavlovich, 1860-1904--Drama. 3.Stanislavsky, Konstantin, 1863-1938--Drama. 4. Moscow Art Theatre--Drama.5. Theater--Russia--Drama. 6. Friendship--Drama. I. Chain Lightning Theatre(New York, N.Y.). II. American Globe Theatre (New York, N.Y.)."
+		var noSubjectWthTitle = 'I. Avalon, Frankie. II. Izzard, Eddie. III. Jacobs, Jim. Grease (Musical). IV. Flying Karamazov Brothers. V. Cirque Eloize (Montreal, Quebec). VI. Title: Sexie.'
+		var tripleDash = "1. Adventure films. 2. Gann, Ernest Kellogg, 1910---Film and video adaptations. 3. Lobby cards. I. Gable, Clark, 1901-1960. II. Hayward, Susan, 1918-1975. III. Rennie, Michael, 1909-1971. IV. Barry, Gene. V. Tully, Tom, 1896-1982. VI. Sten, Anna, 1908-. VII. D'Arcy, Alex. VIII. Collins, Russell, 1897-1965. IX. Dmytryk, Edward, 1908-. X. Twentieth Century-Fox Film Corporation."
+
+		var r = util.arevParseSubjects(subjectsAndNamesNoNameSubjects)
+		r.length.should.equal(7)
+		r[1].should.equal('Drama.')
+
+		var r = util.arevParseSubjects(subjectsAndNamesWithSubjectNames)
+		r.length.should.equal(8)
+		r[0].should.equal('American drama.')
+
+		var r = util.arevParseSubjects(noSubjectWthTitle)
+		r.should.equal(false)
+
+		var r = util.arevParseSubjects(tripleDash)
+		r.length.should.equal(4)
+		r[1].should.equal('Gann, Ernest Kellogg, 1910')
+
+
+	})
+
+
+	it('AREV arevParseSubjectsDeName it should return names and subjects seprated out of the subjects field', function(){
+
+		var test = [ 'Adventure films.',  'Gann, Ernest Kellogg, 1910',  'Film and video adaptations.',  'Lobby cards.' ]
+		var test2 = [ 'Adventure films.',  'Film and video adaptations.',  'Lobby cards.','Gable, Clark, 1901-1960.' ]
+
+
+		var r = util.arevParseSubjectsDeName(test)
+		r.subjects[2].should.equal('Lobby cards.')
+		r.names[0].should.equal('Gann, Ernest Kellogg, 1910')
+
+
+		var r = util.arevParseSubjectsDeName(test2)
+		r.subjects[1].should.equal('Film and video adaptations.')
+		r.names[0].should.equal('Gable, Clark, 1901-1960.')
+
+
+	})
+
 
 
 
