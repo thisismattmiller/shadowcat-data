@@ -104,6 +104,11 @@ db.returnViafLookup(function(err,viaf){
 
 		counter++
 
+		if (counter<6000000){
+			cursor.resume()
+			return false
+		}
+
 		var names = []			
 		
 		//build all the agents
