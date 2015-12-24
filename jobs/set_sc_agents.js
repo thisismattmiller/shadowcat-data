@@ -163,41 +163,52 @@ db.returnViafLookup(function(err,viaf){
 		}
 
 		//doing a edge case here where these legacy arev records are all compressed into a single field
-		if (bib['sc:arev'] && names.length==1){
+		if (bib['sc:arev']){
 
-			if (names[0].name.search(/\-\-/)>-1 || names[0].name.search(/I\.\s/)>-1 || names[0].name.search(/1\./)>-1){
+			var namesFix = []
 
-				var nameString = names[0].name
 
-				var arevNames = util.arevParseNames(nameString)
-				names = []
+			names.forEach(function(aName){				
 
-				if (arevNames){
-					arevNames.forEach(function(n){
-						names.push({
-							name: n,
-							relator: false,
-							contributor: true,
-							type : 'personal'
+				if (aName.name.search(/\-\-/)>-1 || aName.name.search(/I\.\s/)>-1 || aName.name.search(/1\./)>-1){
+
+					var nameString = aName.name
+
+					var arevNames = util.arevParseNames(nameString)
+					
+
+					if (arevNames){
+						arevNames.forEach(function(n){
+							namesFix.push({
+								name: n,
+								relator: false,
+								contributor: true,
+								type : 'personal'
+							})
 						})
-					})
+					}
+
+
+					//we want to check any names in the subject headings
+					var arevSubjects = util.arevParseSubjects(nameString)
+					arevSubjects = util.arevParseSubjectsDeName(arevSubjects)
+					if (arevSubjects.names){
+						arevSubjects.names.forEach(function(n){
+							namesFix.push({
+								name: n,
+								relator: false,
+								contributor: false,
+								type : 'personal'
+							})
+						})
+					}
+				}else{
+					namesFix.push(aName)
 				}
 
+			})
 
-				//we want to check any names in the subject headings
-				var arevSubjects = util.arevParseSubjects(nameString)
-				arevSubjects = util.arevParseSubjectsDeName(arevSubjects)
-				if (arevSubjects.names){
-					arevSubjects.names.forEach(function(n){
-						names.push({
-							name: n,
-							relator: false,
-							contributor: false,
-							type : 'personal'
-						})
-					})
-				}
-			}
+			names = namesFix
 
 			
 		}
