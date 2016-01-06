@@ -96,7 +96,7 @@ if (util.checkItemUpdateTime()){
 
 			api.setApi('prod')
 
-			api.authToken(function(keyValue){
+			api.authToken(function(keyValue,error){
 
 				if (keyValue){
 
@@ -218,7 +218,10 @@ if (util.checkItemUpdateTime()){
 
 
 				}else{
-					console.log("Error authorizing and retriving token. Make sure your credentials are set in the config file.")
+					log.info("Error authorizing and retriving token. Make sure your credentials are set in the config file.")
+					log.info(error)
+
+
 				}
 			});
 
