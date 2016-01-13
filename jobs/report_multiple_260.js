@@ -17,11 +17,12 @@ db.allBibs(function(bib,cursor,mongoConnection){
 	counter++
 
 
+
 	var j = JSON.stringify(bib)
 	var l = j.split(/"marcTag":"260"/).length
 
 	if (l > 3){
-		logHere.info(bib._id + "," + l-1)
+		logHere.info(bib._id + "," + (l-1) )
 		found++
 	}
 
