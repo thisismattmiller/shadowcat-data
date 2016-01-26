@@ -127,28 +127,24 @@ db.allBibs(function(bib,cursor,mongoConnection){
 			var year = parseInt(year)
 
 			if (!isNaN(year)){
-
-
-				if (!report[b][m][year]){
-					report[b][m][year] = {bibCount: 0, itemCount:0}
-				}				
-
-
-				db.returnItemCount(bib.id,function(err,count){
-
-					report[b][m][year].bibCount++
-					report[b][m][year].itemCount=report[b][m][year].itemCount + count
-					cursor.resume()
-					return
-
-				},mongoConnection)
-
-
-			}else{
-				console.log("Error:",bib.bibLevel ,bib.materialType,year)
-				cursor.resume()
-
+				year = "unknown"
 			}
+
+
+			if (!report[b][m][year]){
+				report[b][m][year] = {bibCount: 0, itemCount:0}
+			}				
+
+
+			db.returnItemCount(bib.id,function(err,count){
+
+				report[b][m][year].bibCount++
+				report[b][m][year].itemCount=report[b][m][year].itemCount + count
+				cursor.resume()
+				return
+
+			},mongoConnection)
+
 
 
 
