@@ -126,7 +126,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 			var year = parseInt(year)
 
-			if (!isNaN(year)){
+			if (isNaN(year)){
 				year = "unknown"
 			}
 
