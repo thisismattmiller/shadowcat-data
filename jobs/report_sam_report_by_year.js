@@ -60,7 +60,7 @@ setInterval(function(){
 
 	fs.writeFile("log/sam_report_by_year_interval.json",JSON.stringify(report,null,4)+"\n", function (err) {
 
-		console.log(JSON.stringify(report))
+		//console.log(JSON.stringify(report))
 
 
 	})
