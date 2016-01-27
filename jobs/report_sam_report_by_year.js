@@ -169,6 +169,8 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 		}
 
+	}else{
+		cursor.resume()
 	}
 
 
