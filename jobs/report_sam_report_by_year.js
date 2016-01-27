@@ -95,81 +95,81 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 	//console.log(JSON.stringify(report,null,4))
 
+	if (bib['sc:research']){
+		if (bib.bibLevel && bib.materialType){
 
-	if (bib.bibLevel && bib.materialType){
+			if (bib.bibLevel.code && bib.materialType.code){
 
-		if (bib.bibLevel.code && bib.materialType.code){
-
-			if (bibLevels[bib.bibLevel.code.trim()]){
-				var b = bibLevels[bib.bibLevel.code.trim()]
-			}
-			if (materialTypes[bib.materialType.code.trim()]){
-				var m = materialTypes[bib.materialType.code.trim()]
-			}
-		}
-
-
-		if (b && m){
-
-
-			if (!report[b]){
-				report[b] = {}
-			}
-			if (!report[b][m]){
-				report[b][m] = {}
+				if (bibLevels[bib.bibLevel.code.trim()]){
+					var b = bibLevels[bib.bibLevel.code.trim()]
+				}
+				if (materialTypes[bib.materialType.code.trim()]){
+					var m = materialTypes[bib.materialType.code.trim()]
+				}
 			}
 
-			
-			var year = bib.publishYear
-			if (bib['sc:publishYear']) year = bib['sc:publishYear']
-			
 
-			var year = parseInt(year)
+			if (b && m){
 
-			if (isNaN(year)){
-				year = "unknown"
+
+				if (!report[b]){
+					report[b] = {}
+				}
+				if (!report[b][m]){
+					report[b][m] = {}
+				}
+
+				
+				var year = bib.publishYear
+				if (bib['sc:publishYear']) year = bib['sc:publishYear']
+				
+
+				var year = parseInt(year)
+
+				if (isNaN(year)){
+					year = "unknown"
+				}else{
+
+					year = year - ( year % 10 )
+
+					if (year<1000) year = "unknown"
+					if (year>2016) year = "unknown"	
+
+
+				}
+
+
+				if (!report[b][m][year]){
+					report[b][m][year] = {bibCount: 0, itemCount:0}
+				}				
+
+
+				db.returnItemCount(bib.id,function(err,count){
+
+					report[b][m][year].bibCount++
+					report[b][m][year].itemCount=report[b][m][year].itemCount + count
+					cursor.resume()
+					return
+
+				},mongoConnection)
+
+
+
+
+
+
 			}else{
-
-				year = year - ( year % 10 )
-
-				if (year<1000) year = "unknown"
-				if (year>2016) year = "unknown"	
-
-
-			}
-
-
-			if (!report[b][m][year]){
-				report[b][m][year] = {bibCount: 0, itemCount:0}
-			}				
-
-
-			db.returnItemCount(bib.id,function(err,count){
-
-				report[b][m][year].bibCount++
-				report[b][m][year].itemCount=report[b][m][year].itemCount + count
+				console.log("Error:",bib.bibLevel ,bib.materialType)
 				cursor.resume()
 				return
-
-			},mongoConnection)
-
+			}
 
 
 
 
-
-		}else{
-			console.log("Error:",bib.bibLevel ,bib.materialType)
-			cursor.resume()
-			return
 		}
 
-
-
-
 	}
-
-
 
 
 
