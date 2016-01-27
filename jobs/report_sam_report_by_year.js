@@ -128,6 +128,14 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 			if (isNaN(year)){
 				year = "unknown"
+			}else{
+
+				year = year - ( year % 10 )
+
+				if (year<1000) year = "unknown"
+				if (year>2016) year = "unknown"	
+
+
 			}
 
 
