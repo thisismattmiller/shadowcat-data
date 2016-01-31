@@ -170,7 +170,7 @@ if (cluster.isMaster) {
 
 			var termsSameAs = databaseRegistry.collection('termsSameAs') 
 			var fastLookup = databaseRegistry.collection('fastLookup') 
-			var viafLookup = databaseRegistry.collection('viafLookup') 
+			var viafLookup = databaseRegistry.collection('viaf') 
 
 
 			var processRecord = function(msg) {
@@ -199,7 +199,6 @@ if (cluster.isMaster) {
 
 					//work..	
 					var terms = util.returnTerms(bib)
-
 
 					//we need to check against FAST if any of these terms that don't have FAST ids match anything
 					async.each(terms, function(term, eachCallback) {
@@ -230,8 +229,11 @@ if (cluster.isMaster) {
 
 						if (term.fast){
 
+
+
 							//make sure it is not in VIAF
 							viafLookup.find({ fast : term.fast }).toArray(function(err, viafAry) {
+
 
 								if (viafAry.length>0){
 

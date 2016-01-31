@@ -208,6 +208,8 @@ db.returnViafLookup(function(err,viaf){
 
 			})
 
+			console.log(namesFix)
+
 			names = namesFix
 
 			
@@ -234,6 +236,8 @@ db.returnViafLookup(function(err,viaf){
 			viaf.find({normalized : normal, hasLc: true}).toArray(function(err, viafAry) {
 
 				if (viafAry.length>0){
+
+					//console.log(viafAry)
 
 					//console.log(name.name,bib._id)
 					//console.log(viafAry[0])
@@ -278,88 +282,89 @@ db.returnViafLookup(function(err,viaf){
 
 		   	if (err) console.log(err)
 
+	   		//lets gather all of our viaf IDS and their labels
+	   		var viafIds = [], viafNameLookup = {}, externalViafMatches = []
+
+	   		if (bib['classify:creatorVIAF']){
+	   			bib['classify:creatorVIAF'].forEach(function(v){ if (viafIds.indexOf(v)==-1){ viafIds.push(v); externalViafMatches.push(v); if (!viafNameLookup[v]) viafNameLookup[v] = { nameLc: "", nameViaf: "", contributor: true } }  })
+	   		}
+
+	   		if (bib['wc:contributor']){
+	   			bib['wc:contributor'].forEach(
+	   				function(v){ 
+
+		   				if (viafIds.indexOf(v.id)==-1){
+		   					viafIds.push(v.id)
+		   					externalViafMatches.push(v.id)
+		   					if (!viafNameLookup[v.id])
+		   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: true }
+		   				}
+
+	   					//make sure it has the name 
+	   					if (v.name != "" && viafNameLookup[v.id].nameViaf == "") viafNameLookup[v.id].nameViaf = v.name
+	   				})
+	   		}
+
+	   		if (bib['wc:creator']){
+	   			bib['wc:creator'].forEach(
+	   				function(v){ 
+	   					
+		   				if (viafIds.indexOf(v.id)==-1){
+		   					viafIds.push(v.id)
+		   					externalViafMatches.push(v.id)
+		   					if (!viafNameLookup[v.id])
+		   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: true  }
+		   				}
+
+	   					//make sure it has the name 
+
+	   					if (v.name != "" && viafNameLookup[v.id].nameViaf == "") viafNameLookup[v.id].nameViaf = v.name
+	   				})
+	   		}
+
+	   		if (bib['wc:aboutViaf']){
+
+	   			bib['wc:aboutViaf'].forEach(
+	   				function(v){ 
+	   					
+		   				if (viafIds.indexOf(v.id)==-1){
+		   					viafIds.push(v.id)
+		   					externalViafMatches.push(v.id)   					
+		   					if (!viafNameLookup[v.id])
+		   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: false }
+		   				}
+
+	   					//make sure it has the name 
+
+	   					if (v.name != "" && viafNameLookup[v.id].nameViaf == "") viafNameLookup[v.id].nameViaf = v.name
+
+
+	   				})
+	   		}
+
+	   		//if there were any IDS that we matched vis LC/DNB Exact Match
+	   		newNames.forEach(function(name){
+	   			if (name.viafId) {
+	   				if (viafIds.indexOf(name.viafId)==-1){
+	   					viafIds.push(name.viafId)
+	   					viafNameLookup[name.viafId] = { nameLc: "", nameViaf: "", contributor: name.contributor }
+	   				}
+	   			}	
+	   		})
+
+
 
 		   	var checkOclc = false
 		   	newNames.forEach(function(name){if (!name.viafId) checkOclc = true})
 
-		   //	console.log("checkOclc:",checkOclc)
+		   	//console.log("checkOclc:",checkOclc)
 		   	//console.log("newNames:",newNames)
+
 
 		   	if (checkOclc){
 
 		   		
-
-
-		   		//lets gather all of our viaf IDS and their labels
-		   		var viafIds = [], viafNameLookup = {}
-
-		   		if (bib['classify:creatorVIAF']){
-		   			bib['classify:creatorVIAF'].forEach(function(v){ if (viafIds.indexOf(v)==-1){ viafIds.push(v); if (!viafNameLookup[v]) viafNameLookup[v] = { nameLc: "", nameViaf: "", contributor: true } }  })
-		   		}
-
-		   		if (bib['wc:contributor']){
-		   			bib['wc:contributor'].forEach(
-		   				function(v){ 
-
-			   				if (viafIds.indexOf(v.id)==-1){
-			   					viafIds.push(v.id)
-			   					if (!viafNameLookup[v.id])
-			   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: true }
-			   				}
-
-		   					//make sure it has the name 
-		   					if (v.name != "" && viafNameLookup[v.id].nameViaf == "") viafNameLookup[v.id].nameViaf = v.name
-		   				})
-		   		}
-
-		   		if (bib['wc:creator']){
-
-		   			bib['wc:creator'].forEach(
-		   				function(v){ 
-		   					
-			   				if (viafIds.indexOf(v.id)==-1){
-			   					viafIds.push(v.id)
-			   					if (!viafNameLookup[v.id])
-			   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: true  }
-			   				}
-
-		   					//make sure it has the name 
-
-		   					if (v.name != "" && viafNameLookup[v.id].nameViaf == "") viafNameLookup[v.id].nameViaf = v.name
-		   				})
-		   		}
-
-		   		if (bib['wc:aboutViaf']){
-
-		   			bib['wc:aboutViaf'].forEach(
-		   				function(v){ 
-		   					
-			   				if (viafIds.indexOf(v.id)==-1){
-			   					viafIds.push(v.id)		   					
-			   					if (!viafNameLookup[v.id])
-			   						viafNameLookup[v.id] = { nameLc: "", nameViaf: v.name, contributor: false }
-			   				}
-
-		   					//make sure it has the name 
-
-		   					if (v.name != "" && viafNameLookup[v.id].nameViaf == "") viafNameLookup[v.id].nameViaf = v.name
-
-
-		   				})
-		   		}
-
-		   		//if there were any IDS that we matched vis LC/DNB Exact Match
-		   		newNames.forEach(function(name){
-		   			if (name.viafId) {
-		   				if (viafIds.indexOf(name.viafId)==-1){
-		   					viafIds.push(name.viafId)
-		   					viafNameLookup[name.viafId] = { nameLc: "", nameViaf: "", contributor: name.contributor }
-		   				}
-		   			}	
-		   		})
-
 		   		//now grab the possible records for all these viafs
-
 				viaf.find({ _id : {$in : viafIds } }).toArray(function(err, viafAry) {
 
 					//loop through and fill out any data
@@ -723,6 +728,8 @@ db.returnViafLookup(function(err,viaf){
 		   	}else{
 
 
+
+
 		   		
 
 		   		var agents = [], viafIds = []
@@ -758,6 +765,25 @@ db.returnViafLookup(function(err,viaf){
 
 		   				countFoundInLC++
 
+		   				if (newNames.length == externalViafMatches.length && externalViafMatches.indexOf(n.viafId)==-1){
+		   					//super edge case, if there is one match and we are saying it is a differnt VIAF based on our own LC match, go with the external data
+		   					if (newNames.length == 1){
+		   						if (externalViafMatches.indexOf(n.viafId)==-1){
+		   							//console.log(externalViafMatches)	
+		   							//can we grab the world cat?
+		   							if (bib['wc:creator']){
+		   								if (bib['wc:creator'][0]){
+		   									a.nameLc = n.name
+		   									a.nameViaf = bib['wc:creator'][0].name
+		   									a.viaf = bib['wc:creator'][0].id
+		   								}
+		   							}
+		   						}
+		   					}
+		   				}
+
+
+
 		   			}
 
 		   			if (a.nameLc  === '') a.nameLc = false
@@ -774,7 +800,6 @@ db.returnViafLookup(function(err,viaf){
 		   		viaf.find({ _id : {$in : viafIds } }).toArray(function(err, viafAry) {
 
 		   			viafAry.forEach(function(v){
-
 		   				for (var a in agents){
 							if (agents[a].viaf==v._id){
 								agents[a].nameLc = v.lcTerm
