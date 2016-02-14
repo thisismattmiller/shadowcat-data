@@ -4,20 +4,22 @@
   "dependencies": {
     "async": "^1.4.0",
     "byline": "^4.2.1",
+    "cheerio": "^0.20.0",
     "config": "1.12.0",
     "diacritics": "^1.2.2",
     "fast-csv": "^0.6.0",
     "glob": "^5.0.14",
     "humanparser": "^1.0.0",
+    "lodash": "^3.10.1",
     "moment": "^2.10.3",
     "mongodb": "^2.0.39",
     "moniker": "^0.1.2",
     "pluralize": "^1.2.1",
     "ps-node": "0.0.4",
     "request": "2.53.0",
+    "s3": "^4.4.0",
     "simple-node-logger": "^0.92.21",
-    "string_score": "^0.1.22",
-    "lodash": "^3.10.1"
+    "string_score": "^0.1.22"
   },
   "devDependencies": {
     "mocha": "2.2.5",
