@@ -11,9 +11,9 @@ require("string_score")
 var counter = 0
 
 var namePartSubcode = ['a','b','c','d','q','n']
-var checkFields = ['100','110','111','700','710','711','600','610','611']
+var checkFields = ['100','110','111','700','710','711','790','600','610','611']
 
-var checkFieldsPersonal = ['100','700','600']
+var checkFieldsPersonal = ['100','700','600','790']
 var checkFieldsCorporate = ['110','710','610']
 var checkFieldsMeeting = ['111','711','611']
 
