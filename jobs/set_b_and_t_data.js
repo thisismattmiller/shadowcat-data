@@ -145,10 +145,10 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 	counter++
 
-	// if (counter<10000){
-	// 	cursor.resume()
-	// 	return true
-	// }
+	if (counter<606668){
+		cursor.resume()
+		return true
+	}
 
 
 	if (bib['sc:isbn'] && !bib['bt:check']){
@@ -346,8 +346,16 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 													  process.nextTick(function(){
 
-													  	var stats = fs.statSync('data/bookcover.jpg' )
- 														var fileSizeInBytes = stats["size"]
+
+													  	try {
+													  		var stats = fs.statSync('data/bookcover.jpg' )
+ 															var fileSizeInBytes = stats["size"]
+ 														}catch (e) {
+ 															console.log("Error downloading file",e,bib._id)
+ 															callback(null,false)
+ 															return false
+
+ 														}
 
  														if (fileSizeInBytes>=2800){
 
@@ -507,8 +515,19 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 			}, function(err){
+				if (!foundSomething){
+					var updateObj = {
+						id: bib._id,
+						"bt:check" : Math.floor(Date.now() / 1000)
+					}
+					db.updateBibRecord(updateObj,function(err,r){
+						if (err) console.log("ERRROR:",err)
+						cursor.resume()
+					}, mongoConnection)
+				}else{
+					cursor.resume()
+				}   
 			   
-			   cursor.resume()
 
 			})
 
