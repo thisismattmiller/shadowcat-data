@@ -15,7 +15,7 @@ var opts = {
 
 var log = require('simple-node-logger').createRollingFileLogger( opts );
 
-log.info('[update_bib_db] Starting up Item DB script')
+log.info('[update_bib_db] Starting up Bib DB script')
 
 util.checkIfRunning(function(isRunning){
 	if (isRunning){
@@ -122,22 +122,21 @@ glob(__dirname + '/../data/bib_*.json', {}, function (er, files) {
 
 			var content = fs.readFileSync(file);
 
-			content = JSON.parse(content)
-
-			if (content.entries){
-
-				log.info("[update_bib_db] Parsing: ", file)
-
-
-				for (var x in content.entries){
-
-					records.push(content.entries[x])
+			try{
+				content = JSON.parse(content)
+				if (content.entries){
+					log.info("[update_bib_db] Parsing: ", file)
+					for (var x in content.entries){
+						records.push(content.entries[x])
+					}
+				}else{
+					log.info("[update_bib_db] Error parsing: ", file)
 				}
 
-
-			}else{
-				log.info("[update_bib_db] Error parsing: ", file)
+			}catch (e) {
+				log.info("[update_bib_db] Error parsing JSON: ", file)
 			}
+
 
 
 
