@@ -97,8 +97,7 @@ db.returnCollection("bib",function(err,bibCollection){
 		})
 	})
 
-	//_(fs.createReadStream('./data/ol_dump_coverids.txt'))
-	_(fs.createReadStream('./data/oclc.test'))
+	_(fs.createReadStream('./data/ol_dump_coverids.txt'))
 		.split()
 		.compact()
 		.map(function (x) {
