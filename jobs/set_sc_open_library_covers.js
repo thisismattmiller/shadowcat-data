@@ -21,7 +21,7 @@ var client = s3.createClient({
 	}
 })
 
-var totalUploaded = 0
+var totalUploaded = 0, total = 0
 
 function pad(n, width, z) {
   z = z || '0';
@@ -61,7 +61,7 @@ db.returnCollection("bib",function(err,bibCollection){
 					//update shadowcat
 					bibCollection.update({ _id: bib._id }, {$set: {  'ol:cover' : true, 'ol:id' : results.olId  } }, function(err, result) {  
 						callback()
-						console.log(totalUploaded, bib._id)
+						console.log("\n",bib._id,"\n")
 
 					})											
 				})
@@ -99,6 +99,16 @@ db.returnCollection("bib",function(err,bibCollection){
 		.split()
 		.compact()
 		.map(function (x) {
+
+			total++
+
+			process.stdout.clearLine()
+			process.stdout.cursorTo(0)
+			process.stdout.write("OL Cover Update: total: " +  total + " | totalUploaded: " + totalUploaded )
+
+
+
+
 			var split = x.split("\t")
 			//the isbn has leading zeros
 			split[1] = split[1].trim()
