@@ -9,6 +9,7 @@
     "diacritics": "^1.2.2",
     "fast-csv": "^0.6.0",
     "glob": "^5.0.14",
+    "highland": "^2.6.0",
     "humanparser": "^1.0.0",
     "lodash": "^3.10.1",
     "moment": "^2.10.3",
