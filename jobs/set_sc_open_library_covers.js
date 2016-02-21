@@ -61,7 +61,7 @@ db.returnCollection("bib",function(err,bibCollection){
 					//update shadowcat
 					bibCollection.update({ _id: bib._id }, {$set: {  'ol:cover' : true, 'ol:id' : results.olId  } }, function(err, result) {  
 						callback()
-						console.log("\n",bib._id,"\n")
+						//console.log("\n",bib._id,"\n")
 
 					})											
 				})
@@ -86,9 +86,15 @@ db.returnCollection("bib",function(err,bibCollection){
 		var searchObj = { "sc:isbn" : cover.isbn }
 		if (cover.oclc) searchObj = { $or: [ { "sc:oclc" : cover.oclc }, { "classify:oclc" : cover.oclc } ] }
 
-		bibCollection.find(searchObj, { _id : 1 }).toArray(function(err, results){
+		bibCollection.find(searchObj, { _id : 1, 'ol:cover' : 1 }).toArray(function(err, results){
 			if (results.length>0){
-				cb(null, { _id: results, cover: cover.cover, olId: cover.olId  })
+
+				if (results[0]['ol:cover']){
+					totalUploaded++
+					cb(null,false)
+				}else{
+					cb(null, { _id: results, cover: cover.cover, olId: cover.olId  })
+				}
 			}else{
 				cb(null,false)
 			}	
