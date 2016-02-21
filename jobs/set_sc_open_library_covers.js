@@ -36,11 +36,7 @@ db.returnCollection("bib",function(err,bibCollection){
 
 	var uploadAndUpdate = _.wrapCallback(function uploadAndUpdate(results,cb){
 		if (results){
-
-			console.log(results)
-
 			async.each(results._id, function(bib, callback) {
-
 
 				//try to upload the image, if that works then update the record in shadowcat
 				var filename = coverLocation + results.cover + "-L.jpg"
@@ -65,6 +61,8 @@ db.returnCollection("bib",function(err,bibCollection){
 					//update shadowcat
 					bibCollection.update({ _id: bib._id }, {$set: {  'ol:cover' : true, 'ol:id' : results.olId  } }, function(err, result) {  
 						callback()
+						console.log(totalUploaded, bib._id)
+
 					})											
 				})
 
