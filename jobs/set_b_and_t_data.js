@@ -333,6 +333,11 @@ db.allBibs(function(bib,cursor,mongoConnection){
 										var url = "http://imagesb.btol.com/ContentCafe/Jacket.aspx?UserID=ContentCafeClient&Password=Client&Return=T&Type=L&Value=" + isbn
 
 										var req = request.get( url )
+											.on('error', function(err) {
+												console.log("Error trying to download image")
+												console.log(err)
+												callback(null,false)												
+											})
 											.on( 'response', function( res ){
 
 												if (res.statusCode==parseInt(200)){
