@@ -6,6 +6,7 @@ var _ = require('highland')
 var fs = require("fs")
 var s3 = require('s3')
 var async = require("async")
+var request = require("request")
 
 
 var client = s3.createClient({
@@ -30,14 +31,13 @@ function pad(n, width, z) {
 }
 
 var coverLocation = "/Volumes/Backups/bookcovers/covers/"
-
+coverLocation = "/Users/matt/Downloads/"
 
 db.returnCollection("bib",function(err,bibCollection){
 
 	var uploadAndUpdate = _.wrapCallback(function uploadAndUpdate(results,cb){
 		if (results){
 			async.each(results._id, function(bib, callback) {
-
 				//try to upload the image, if that works then update the record in shadowcat
 				var filename = coverLocation + results.cover + "-L.jpg"
 				var params = {
@@ -73,8 +73,6 @@ db.returnCollection("bib",function(err,bibCollection){
 		}else{
 			cb(null,false)
 		}
-
-
 	})
 
 
@@ -100,6 +98,52 @@ db.returnCollection("bib",function(err,bibCollection){
 			}	
 		})
 	})
+
+	var checkForImage = _.wrapCallback(function checkForImage(results,cb){
+
+		if (results){
+			
+			fs.stat(coverLocation + results.cover + "-L.jpg", function (err, stats) {
+
+				if (err){
+					console.log("Downloading File",coverLocation + results.cover + "-L.jpg")
+					//the file does not exist, grab it from open library
+					var req = request.get( "http://covers.openlibrary.org/b/id/" + results.cover + "-L.jpg" )
+						.on( 'response', function( res ){
+							if (res.statusCode==parseInt(200)){
+
+								// create file write stream
+								var fws = fs.createWriteStream( coverLocation + results.cover + "-L.jpg" )
+								// setup piping
+								res.pipe( fws )
+
+								res.on( 'end', function(){					  
+								  process.nextTick(function(){
+								  	cb(null,results)
+								  })						  
+								})
+							}else{
+								cb(null,false)
+							}
+						})
+
+
+				}else{
+					cb(null,results)
+				}
+			})
+
+
+
+		}else{
+			cb(null,false)
+			return false
+
+		}
+		
+
+	})
+
 
 	_(fs.createReadStream('./data/ol_dump_coverids.txt'))
 		.split()
@@ -129,6 +173,7 @@ db.returnCollection("bib",function(err,bibCollection){
 			return {}		
 		})
 		.map(findShadowcatMatch).sequence()
+		.map(checkForImage).sequence()
 		.map(uploadAndUpdate).sequence()
 
 		// .batch(1000)
