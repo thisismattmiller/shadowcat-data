@@ -79,7 +79,6 @@ db.returnCollection("bib",function(err,bibCollection){
 		},
 		function(err, results) {
 
-
 			var useBnumbers = []
 			//prioritze by which fields we use
 			if (results.byScOclc.length>0){
@@ -135,10 +134,6 @@ db.returnCollection("bib",function(err,bibCollection){
 			process.stdout.clearLine()
 			process.stdout.cursorTo(0)
 			process.stdout.write("Hathi Update: total: " +  total + " | totalAdded: " + totalAdded )
-
-			if (total<5261441){
-				return false
-			}
 
 			var data = x.split("\t")
 
