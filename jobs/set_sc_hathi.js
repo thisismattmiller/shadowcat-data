@@ -6,7 +6,7 @@ var _ = require('highland')
 var fs = require("fs")
 var async = require("async")
 
-var totalUploaded = 0, total = 0
+var totalAdded = 0, total = 0
 
 var splitIt = function(val){
 	var r = null
@@ -93,6 +93,7 @@ db.returnCollection("bib",function(err,bibCollection){
 				//we want to update all the bnumbers supplied with the vol info and hathi flags
 				async.each(useBnumbers, function(bib, callback) {
 					if (!bib["hathi:vols"]) bib["hathi:vols"] = []
+					totalAdded++
 
 					var allVols = bib["hathi:vols"].map(x=> x.volumeId )
 
@@ -128,7 +129,7 @@ db.returnCollection("bib",function(err,bibCollection){
 
 			process.stdout.clearLine()
 			process.stdout.cursorTo(0)
-			process.stdout.write("Hathi Update: total: " +  total + " | totalUploaded: " + totalUploaded )
+			process.stdout.write("Hathi Update: total: " +  total + " | totalAdded: " + totalAdded )
 
 
 			var data = x.split("\t")
