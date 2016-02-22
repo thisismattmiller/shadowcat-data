@@ -26,7 +26,12 @@ var splitIt = function(val){
 
 
 db.returnCollection("bib",function(err,bibCollection){
+
 	var updateShadowcat = _.wrapCallback(function updateShadowcat(vol,cb){	
+		if (!vol){
+			cb(null,vol)
+			return false
+		}
 		//try all the fields
 		async.parallel({
 			//mark this, the bnumber if there is one and the MMS collection as being serialized
@@ -131,6 +136,9 @@ db.returnCollection("bib",function(err,bibCollection){
 			process.stdout.cursorTo(0)
 			process.stdout.write("Hathi Update: total: " +  total + " | totalAdded: " + totalAdded )
 
+			if (total<5261441){
+				return false
+			}
 
 			var data = x.split("\t")
 
