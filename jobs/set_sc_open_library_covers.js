@@ -31,7 +31,6 @@ function pad(n, width, z) {
 }
 
 var coverLocation = "/Volumes/Backups/bookcovers/covers/"
-coverLocation = "/Users/matt/Downloads/"
 
 db.returnCollection("bib",function(err,bibCollection){
 
