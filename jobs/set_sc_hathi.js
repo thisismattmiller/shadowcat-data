@@ -99,8 +99,14 @@ db.returnCollection("bib",function(err,bibCollection){
 					if (!bib["hathi:vols"]) bib["hathi:vols"] = []
 					totalAdded++
 
-					var allVols = bib["hathi:vols"].map(x=> x.volumeId )
+					if (bib["hathi:vols"].length>1000){
+						bibCollection.update({ _id: bib._id }, {$set: { "hathi:overflow" : true } }, function(err, result) {  
+							callback()
+						})
+						return false
+					}
 
+					var allVols = bib["hathi:vols"].map(x=> x.volumeId )
 					if (allVols.indexOf(vol.volumeId)==-1){
 						bib["hathi:vols"].push(vol)					
 					}					
