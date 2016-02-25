@@ -35,9 +35,8 @@ db.allBibs(function(bib,cursor,mongoConnection){
 	counter++
 
 	var bibString = JSON.stringify(bib)
-
 	if (bibString.search(/Treasures of the American Performing Arts/i)>-1){
-		if (!report[bib._id]) report[bib._id] = { "856": [], "001": false }
+		if (!report[bib._id]) report[bib._id] = { "856": [], "001": false, "suppressed" : bib.suppressed }
 		
 		bib.varFields.forEach(function(v){
 			if (v.marcTag==='856'){				
