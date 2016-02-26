@@ -377,7 +377,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 																//console.error("unable to upload:", err.stack);
 																console.log("unable to upload:")
 																console.log(err.stack)
-																console.log(filename)
+																console.log(params)
 																fs.unlinkSync('data/bookcover.jpg')
 																callback(null,false)
 															})
