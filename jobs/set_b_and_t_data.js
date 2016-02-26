@@ -228,7 +228,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 											}else{
-												console.log("ERROR!",error, response.statusCode)
+												console.log("ERROR!",error)
 											}
 											callback(null,summaries)
 
@@ -269,7 +269,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 											}else{
-												console.log("ERROR!",error, response.statusCode)
+												console.log("ERROR!",error)
 											}
 											callback(null,authorNotesResults)
 
@@ -312,7 +312,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 											}else{
-												console.log("ERROR!",error, response.statusCode)
+												console.log("ERROR!",error)
 											}
 											callback(null,flapResults)
 
@@ -437,7 +437,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 
 											}else{
-												console.log("ERROR!",error, response.statusCode)
+												console.log("ERROR!",error)
 											}
 
 
@@ -506,7 +506,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 						}
 
 					}else{
-						console.log("ERROR!",error, response.statusCode)
+						console.log("ERROR!",error)
 						setTimeout(function(){						
 							isbnCallback()
 						},500)
