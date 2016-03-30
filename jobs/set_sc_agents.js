@@ -191,19 +191,30 @@ db.returnViafLookup(function (err, viaf) {
 
       // something to experiment with obviously bad names
       // if (normal.length<5){
-      // 	console.log(normal)
-      // 	console.log(name)
-      // 	console.log(bib._id)
+      //  console.log(normal)
+      //  console.log(name)
+      //  console.log(bib._id)
       // }
 
       viaf.find({normalized: normal, hasLc: true}).toArray(function (err, viafAry) {
         if (viafAry.length > 0) {
           // console.log(viafAry)
-
           // console.log(name.name,bib._id)
           // console.log(viafAry[0])
-          name.viafName = viafAry[0].viafTerm
-          name.viafId = viafAry[0]._id
+
+          // check the scores of multiple results so we can make sure we have the best match
+          var bestScore = -100
+          var bestMatch = false
+          for (var x in viafAry) {
+            var score = viafAry[x].lcTerm.score(name.name, 0.5)
+            if (score > bestScore) {
+              bestScore = score
+              bestMatch = viafAry[x]
+            }
+          }
+
+          name.viafName = bestMatch.viafTerm
+          name.viafId = bestMatch._id
 
           newNames.push(name)
           eachCallback()
@@ -347,9 +358,9 @@ db.returnViafLookup(function (err, viaf) {
 
           // remove any matches we know of already
           // newNames.forEach(function(n){
-          // 	if (n.viafId){
-          // 		delete viafLookup[n.viafId]
-          // 	}
+          //  if (n.viafId){
+          //    delete viafLookup[n.viafId]
+          //  }
           // })
 
           // the idea is to try and match local names to worldcat names at an increasingly higher threashold
@@ -469,13 +480,13 @@ db.returnViafLookup(function (err, viaf) {
           if (unusedViaf.length != 0) {
             // console.log("Did not match local to anything:")
             // newNames.forEach(function(n){
-            // 	if (!n.viafId && !n.matchedViaf) console.log("\t",n.name)
+            //  if (!n.viafId && !n.matchedViaf) console.log("\t",n.name)
             // })
 
             // console.log("Did not find local name for viaf:",bib._id,"\n")
 
             // unusedViaf.forEach(function(n){
-            // 	console.log("\t",n,viafNameLookup[n])
+            //  console.log("\t",n,viafNameLookup[n])
             // })
 
             // console.log(newNames)
@@ -484,24 +495,24 @@ db.returnViafLookup(function (err, viaf) {
 
             // if (newNames.length == 1 && unusedViaf.length == 1){
 
-            // 	for (var y in newNames){
-            // 		if (!newNames[y].matchedViaf && !newNames[y].viafId){
+            //  for (var y in newNames){
+            //    if (!newNames[y].matchedViaf && !newNames[y].viafId){
 
-            // 			console.log("Mapping",newNames[y],"to",unusedViaf,viafNameLookup[unusedViaf[0]])
+            //      console.log("Mapping",newNames[y],"to",unusedViaf,viafNameLookup[unusedViaf[0]])
 
-            // 			//newNames[y].matchedViaf = unusedViaf[0]
+            //      //newNames[y].matchedViaf = unusedViaf[0]
 
-            // 			//unusedViaf = []
-            // 		}
-            // 	}
+            //      //unusedViaf = []
+            //    }
+            //  }
             // }
 
           }
 
           // console.log(newNames)
-          //  		console.log(viafIds)
-          //  		console.log(viafNameLookup)
-          //  		console.log(unusedViaf)
+          //      console.log(viafIds)
+          //      console.log(viafNameLookup)
+          //      console.log(unusedViaf)
 
           // at this point everything that we can map is mapped, build the final agents field
           var agents = []
