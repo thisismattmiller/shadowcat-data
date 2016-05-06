@@ -2,7 +2,7 @@
   "APIProd": {
   	"key": "",
   	"secret" : "",
-  	"base" : "https://lib.example.edu/iii/sierra‑api/v1/",
+  	"base" : "https://lib.example.edu/iii/sierra‑api/v2/",
     "type" : "prod"
   },
   "APITest": {
