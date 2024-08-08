@@ -25,6 +25,10 @@ var client = s3.createClient({
 	}
 })
 
+function contentCafeUrl(isbn) {
+ return `http://contentcafe2.btol.com/ContentCafeClient/ContentCafe.aspx?UserID=${process.env.CC_USERNAME}&Password=${process.env.CC_PASSWORD}&ItemKey=${isbn}&Options=N`	
+}
+
 
 var extractHtml = function(node){
 
@@ -174,8 +178,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 				//isbn = 9780826458896
 				//isbn = 9781510702080
 
-				//console.log('http://contentcafe2.btol.com/ContentCafeClient/ContentCafe.aspx?UserID=***REMOVED***&Password=***REMOVED***&ItemKey='+ isbn +'&Options=N')
-				request('http://contentcafe2.btol.com/ContentCafeClient/ContentCafe.aspx?UserID=***REMOVED***&Password=***REMOVED***&ItemKey='+ isbn +'&Options=N', function (error, response, body) {
+				request(contentCafeUrl(isbn), function (error, response, body) {
 					if (!error && response.statusCode == 200) {		
 
 						if (body.search('No content currently exists for this item')===-1 && body.search('Invalid key')===-1){
@@ -201,7 +204,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 									var summaries = []
 
 									if (summary){
-										request('http://contentcafe2.btol.com/ContentCafeClient/Summary.aspx?UserID=***REMOVED***&Password=***REMOVED***&ItemKey='+ isbn +'&Options=N', function (error, response, body) {
+										request(contentCafeUrl(isbn), function (error, response, body) {
 											if (!error && response.statusCode == 200) {		
 												var parsedHTML = $.load(body)
 
@@ -244,7 +247,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 									var authorNotesResults = []
 
 									if (authorNotes){
-										request('http://contentcafe2.btol.com/ContentCafeClient/AuthorNotes.aspx?UserID=***REMOVED***&Password=***REMOVED***&ItemKey='+ isbn +'&Options=N', function (error, response, body) {
+										request(contentCafeUrl(isbn), function (error, response, body) {
 											if (!error && response.statusCode == 200) {		
 												var parsedHTML = $.load(body)
 
@@ -288,7 +291,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 
 									if (flap){
 
-										request('http://contentcafe2.btol.com/ContentCafeClient/Flap.aspx?UserID=***REMOVED***&Password=***REMOVED***&ItemKey='+ isbn +'&Options=N', function (error, response, body) {
+										request(contentCafeUrl(isbn), function (error, response, body) {
 											if (!error && response.statusCode == 200) {		
 												var parsedHTML = $.load(body)
 
@@ -411,7 +414,7 @@ db.allBibs(function(bib,cursor,mongoConnection){
 									var reviewResults = []
 
 									if (review){
-										request('http://contentcafe2.btol.com/ContentCafeClient/ReviewsDetail.aspx?UserID=***REMOVED***&Password=***REMOVED***&ItemKey='+ isbn +'&Options=N', function (error, response, body) {
+										request(contentCafeUrl(isbn), function (error, response, body) {
 											if (!error && response.statusCode == 200) {		
 
 												var parsedHTML = $.load(body)
